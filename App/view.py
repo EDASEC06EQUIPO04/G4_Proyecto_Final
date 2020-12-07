@@ -39,6 +39,7 @@ from DISClib.ADT import list as lt
 from DISClib.ADT import map as m
 from DISClib.Algorithms.Graphs import dfs
 from DISClib.DataStructures import edge as e
+from DISClib.ADT import orderedmap as om
 
 """
 La vista se encarga de la interacción con el usuario.
@@ -54,10 +55,7 @@ operación seleccionada.
 
 initialStation = None
 recursionLimit = 20000
-#servicefile = '201801-1-citibike-tripdata.csv'
-#servicefile2 = '201801-2-citibike-tripdata.csv'
-#servicefile3 = '201801-3-citibike-tripdata.csv'
-#servicefile4 = '201801-4-citibike-tripdata.csv'
+
 
 # ___________________________________________________
 #  Menu principal
@@ -92,29 +90,59 @@ def optionTwo():
         servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
     cont1=controller.loadServices(cont,servicefile)
     
-    compania=lt.getElement(cont1['companias'],0)
-    print (compania['taxi_id'])
-    print ("Cantidad de servicios prestados: ", lt.size(cont['companias']))
-    print ("")
+    servicio=lt.getElement(cont1['servicioIndex'],0)
+    print (servicio['taxi_id'])
+
+
+
 
     
-    
-
-
 def optionThree():
-    sccA=controller.connectedComponents(cont)
-    #print('El número de componentes conectados es: ' + str(controller.connectedComponents(cont)))
-    print('El número de componentes conectados es: ' + str(sccA))
-    input ("El argorimo de Kosaraju esta funcionando, esto es el scc.py")
+    print (" ")
+    #mapaServicios=cont['servicioIndex']
     
-    id1=input("Inserte Station ID_1: " )
-    id2=input("Inserte Station ID_2: ")
-    #TESTED WITH 
-    #72 y 127, True
-    #72 y 270
-    scc2=(controller.connectedwithID(cont,id1,id2))
-    print ("Estan ", id1, " y " , id2 , "fuertemente conectados: " , scc2) 
-    input ("clic para continuar")
+    #print ("Cantidad de companias que prestan servicios: ", om.size(mapaServicios))
+    print ("Cantidad de servicios prestados: ", lt.size(cont['servicioIndex']))
+    print ("  ") 
+    print ("Cantidad de companias: ", om.size(cont['companias']))  
+    print ("  ")
+    print ("Cantidad de taxis: ", om.size(cont['taxiIndex']))  
+    print ("  ")   
+    input ("" )
+    print ("++++++++++++++++++++++++++Nombre de las companias ++++++++++++++++++++++++++++++++++++++++++") 
+    print ("  ")
+    print (om.keySet(cont['companias']))
+    print ("  ")
+    print ("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++") 
+    print ("   ")
+    input ("")
+    print ("++++++++++++++++++++++++++ Cantidad de serviios prestados +++++++++++++++++++++++++++++++++++++") 
+    print ("  ")
+    print (om.get(cont['companias'],'2733 - 74600 Benny Jona'))
+    print ("  ")
+    tam =(om.get(cont['companias'],'2733 - 74600 Benny Jona'))
+    print ("La cantidad de servicios prestados por @@ 2733 - 74600 Benny Jona: ", tam.values())
+    print ("  ")
+    input (" Clic para ver a  continuacion servicios prestdos por el taxi")
+
+    print ("++++++++++++++++++++++++++ Cantidad de servicios prestados por el Taxi +++++++++++++++++++++++++++++++++++++") 
+    print ("  ")
+    print (om.get(cont['taxiIndex'],'47afa2ad8334a794871c5a7e9785925599304a77c3d9cc49dd7362dce26e0c44b5a262c342084cb82c1a61b3f46f06b7083b0e737f6655ec09ec8f44ff9c3cb8'))
+    print ("  ")
+    tam1 =(om.get(cont['taxiIndex'],'47afa2ad8334a794871c5a7e9785925599304a77c3d9cc49dd7362dce26e0c44b5a262c342084cb82c1a61b3f46f06b7083b0e737f6655ec09ec8f44ff9c3cb8'))
+    print ("La cantidad de servicios prestados por el taxi @@ ", tam1.values())
+    lista=lt.newList()
+    lista=om.valueSet(cont['taxiIndex'])
+    print ("+++++++++++++++++++++++")
+    print (lt.getElement (lista,0))
+    print ("+++++++++++++++++++++++")
+    print ("La cantidad de taxis: " , lt.size (lista))
+    
+    #print ("Cantidad de companias que prestan servicios: ", om.keySet(mapaServicios))
+   
+    print ("")
+    input ("Clic para conitnuar")
+
 
 def stationRecursive (analyzer,stationc,time):
     print (stationc)
@@ -277,7 +305,7 @@ Menu principal
 """
 while True:
     printMenu()
-    inputs = input('Seleccione una opción para continuar\n>')
+    inputs = input('Seleccione una opción para continuar> ')
 
     if int(inputs) == 1:
         print("\nInicializando....")

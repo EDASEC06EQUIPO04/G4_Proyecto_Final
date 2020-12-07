@@ -71,8 +71,8 @@ def loadServices(analyzer,servicesfile):
     input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
       
     
-    for company in input_file:
-        model.addCompany(analyzer, company) 
+    for service in input_file:
+        model.addService(analyzer, service) 
 
     return analyzer
 

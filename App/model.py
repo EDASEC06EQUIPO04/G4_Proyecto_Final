@@ -51,13 +51,13 @@ def newAnalyzer():
 
     # creo la lista para almacenar todos los companias, esto es cada fila del excel con sus 23 campos
     # crea un Cataolo de Analyzer, una lista para los Companias y una Mapa Ordenado los servicios y taxis
-    analyzer={ 'companias':None,
-               'servicioIndex':None,
-               'taxiIndex':None
+    analyzer={  'servicioIndex':None, 
+                'companias':None,
+                'taxiIndex':None
             }
-    analyzer['companias']=lt.newList('SINGLE_LINKED',compareIds)
+    analyzer['servicioIndex']=lt.newList('SINGLE_LINKED',compareIds)
 
-    analyzer['servicioIndex']=om.newMap(omaptype='RBT',comparefunction=compareServicio)
+    analyzer['companias']=om.newMap(omaptype='RBT',comparefunction=compareServicio)
     analyzer['taxiIndex']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)
          
     return analyzer
@@ -65,245 +65,377 @@ def newAnalyzer():
 
 # Funciones para agregar informacion al grafo
 
-def addCompany(analyzer, company):
+def addService(analyzer, service):
 
     try:
-        lt.addLast(analyzer['companias'],company)
+        lt.addLast(analyzer['servicioIndex'],service)
+        #updateServiceIndex(analyzer['servicioIndex'], service)
+        companies = service['company'].split(";")  # Se obtienen las companias
+        for compania in companies:
+            addSerCompany(analyzer, compania.strip(), service)
+            
+        taxiss = service['taxi_id'].split(";")  # Se obtienen las companias
+        for taxi in taxiss:
+            addSerTaxi(analyzer, taxi.strip(), service)
+
+
         return analyzer
     except Exception as exp:
         error.reraise(exp, 'model:addStopConnection')
 
+def updateServiceIndex(map, servicio):
+    """
+    Se toma cada companiay se busca si ya existe en el arbol. Si es asi, se adiciona a su lista de servicios
+    y se actualiza el indice de servicios.
+    Si no se encuentra creado un nodo para la compania en el arbol
+    se crea y se actualiza el indice de tipos de servicios
+    """
+    companyName= servicio['company']
+    ocurreService = servicio['trip_id']
+    ocurreTaxi = servicio['taxi_id']
+    
+    entry = om.get(map, ocurreService)
 
-def addStop(analyzer, stopid):
-    """
-    Adiciona una estación como un vertice del grafo
-    """
-    try:
-        if not gr.containsVertex(analyzer['connections'], stopid):
-            gr.insertVertex(analyzer['connections'], stopid)
-            
-        return analyzer
-    except Exception as exp:
-        error.reraise(exp, 'model:addstop')
-
-
-def addRouteStop(analyzer, service):
-    """
-    Agrega a una estacion, los IdBikes que estuvieron los visitaron
-    """
-    entry = m.get(analyzer['stops'], service['end station id'])
-    lstroutes = lt.newList(cmpfunction=compareroutes)
     if entry is None:
-        lstroutes = lt.newList(cmpfunction=compareroutes)
-        lt.addLast(lstroutes, service['bikeid'])
-        m.put(analyzer['stops'], service['end station id'], lstroutes)
+        #datentry = newDataEntry(servicio)
+        om.put(map, companyName, ocurreService)
     else:
-        #lstroutes = entry['value']
-        info = service['bikeid']
-        if not lt.isPresent(lstroutes, info):
-            lt.addLast(lstroutes, info)
-            m.put(analyzer['stops'], service['end station id'], lstroutes)
+        datentry = me.getValue(entry)
+    addServiceIndex(datentry, servicio)
+    return map
 
-    return analyzer
-
-def addRouteConnections(analyzer):
+def addMovie(catalogo,movie):
     """
-    Por cada vertice (cada estacion) se recorre la lista
-    de rutas servidas en dicha estación y se crean
-    arcos entre ellas para representar el cambio de ruta
-    que se puede realizar en una estación.
+    Esta funcion adiciona un pelicula a la lista de movie,
+    adicionalmente lo guarda en un Map usando como llave su production_companies_I.
     """
-    lststops = m.keySet(analyzer['stops'])
-    stopsiterator = it.newIterator(lststops)
-    while it.hasNext(stopsiterator):
-        key = it.next(stopsiterator)
-        lstroutes = m.get(analyzer['stops'], key)['value']
-        prevrout = None
-        routeiterator = it.newIterator(lstroutes)
-        while it.hasNext(routeiterator):
-            route = key + '-' + it.next(routeiterator)
-            if prevrout is not None:
-                addConnection(analyzer, prevrout, route, 0)
-                addConnection(analyzer, route, prevrout, 0)
-            prevrout = route
+    lt.addLast(catalogo['movies'], movie)
 
 
-def addConnection(analyzer, origin, destination, distance):
+
+def newPelicula(name):
     """
-    Adiciona un arco entre dos estaciones
+    Crea una nueva estructura para modelar los pelicuales de un productora
+    y su promedio de ratings
     """
-    edge = gr.getEdge(analyzer['connections'], origin, destination)
-    if edge is None:
-        gr.addEdge(analyzer['connections'], origin, destination, distance)
-    else: #actualizacion del peso de los arcos
-        # Quiero poner el condicional siguiente para  que me cargue solo los que nos sean iguales..
-        if origin == destination:
-            #print("-------- " ,origin, " --> " , destination, ", Nodos iguales")
-            pass
-        else:
-            #print("@@@@@@@@ " , origin, " --> " , destination, ", cargando info..")
-            e.updateAverageWeight (edge,distance)
-        #Aqui imprimo la imforacion de los arcos y el contador
-        #print ("Arco update " + str(origin) + "-->" + str(destination) + "   count: " + str(edge['count']))
-    return analyzer
+    productora = {'production_companies': "", "movies": None,  "average_rating": 0}
+    productora['production_companies'] = name
+    productora['movies'] = lt.newList('SINGLE_LINKED', comparePeliculasByName)
+    return productora
+
+
+def newProd(name):
+    """
+    Crea una nueva estructura para modelar los libros de un autor
+    y su promedio de ratings
+    """
+    company= {'production_companies': "", "movies": None,  "average_rating": 0}
+    company['production_companies'] = name
+    company['movies'] = lt.newList('SINGLE_LINKED', compareprodComs)    
+    return company
+
+
+def compareprodComs(keyname, company):
+    """
+    Compara dos nombres de autor. El primero es una cadena
+    y el segundo un entry de un map
+    """
+    authentry = me.getKey(company)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+
+
+
+#pretty sure this one is referenced by nothing and can be deleted
+#dont delete without validating it is in fact useless
+
+
+def addProductionCompany(catalog, companyName, movie):
+
+    nombrePelicula = catalog['original_title']
+    print ("")
+    print ("\n", nombrePelicula)
+    input (" Clic para continuar despues de nombre pelicula...")
+
+    #existePelicula = mp.contains(nombrePelicula, companyName)
+    existePelicula = mp.contains(catalog['production_companies_ID'], companyName)
+
+    if existePelicula:
+        entry = mp.get(catalog['production_companies_ID'], companyName)
+        nombrePelicula = me.getValue(entry)
+    else:
+        mp.put(catalog['production_companies_ID'], companyName, nombrePelicula)
+
+#################################################    
+#### Adiciona una servicios a una compania   #### 
+#################################################  
+
+def addSerCompany(catalog, compania, service):
+    
+    companias = catalog['companias']
+    existincompany = om.contains(companias, compania)
+    if existincompany:
+        entry = om.get(companias , compania)
+        serviceAdd = me.getValue(entry)
+    else:
+        serviceAdd = newServicio(compania)
+        om.put(companias , compania, serviceAdd)
+    lt.addLast(serviceAdd['trip_id'], service)
+    #print (lt.size (serviceAdd['trip_id']))
+    
+def newServicio(name):
+    """
+    Crea una nueva estructura para modelar los libros de un autor
+    y su promedio de ratings
+    """
+    servicio= {'company': "", "trip_id": None,  "taxi_id": None}
+    servicio['company'] = name
+    servicio['trip_id'] = lt.newList('SINGLE_LINKED', compareprodComs)      
+    return servicio
+
+def addSerTaxi(catalog, taxi_id, service):
+    taxis = catalog['taxiIndex']
+    existincompany = om.contains(taxis, taxi_id)
+    if existincompany:
+        entry = om.get(taxis , taxi_id)
+        serviceAdd = me.getValue(entry)
+    else:
+        serviceAdd = newServicioT(taxi_id)
+        om.put(taxis , taxi_id, serviceAdd)
+    lt.addLast(serviceAdd['trip_id'], service)
+    #print (lt.size (serviceAdd['trip_id']))
+    
+
+def newServicioT(name):
+    """
+    Crea una nueva estructura para modelar los libros de un autor
+    y su promedio de ratings
+    """
+    servicio= {'company': "", "trip_id": None,  "taxi_id": None}
+    servicio['taxi_id'] = name
+    servicio['trip_id'] = lt.newList('SINGLE_LINKED', compareprodComs)    
+     
+    return servicio
+
+
+
+
+
+def addDirector(catalog, director):
+#each row builds a catal;ogue entry from csv2
+
+#this row corresponds to the rows in the CSV
+    newdic = newDirector(director['director_name'], director['actor1_name'], director['id'])
+
+#these rows are the names assigned in the catalogue. note first item in brackest is the assigned name of the new catalogue, second one is the reference matching CSV and first line
+    mp.put(catalog['directors'], director['director_name'], newdic)
+    mp.put(catalog['actors1'], director['actor1_name'], newdic)
+    mp.put(catalog['movieIds'], director['id'], newdic)
+
+
+
+
+def newDirector(director, actor1, id):
+
+    casting= {'director': '',
+            'actor1': '',
+            'movieId': '',
+            'total_movies': 0,
+            'movies': None,
+            'count': 0.0}
+    casting['director'] = director
+    casting['actor1'] = actor1
+    casting['movieIds'] = id
+    casting['movies'] = lt.newList()
+    return casting
+
+
+
+
+
+# ==============================
+# Funciones de adicion
+# ==============================
+
+
+def addId(catalogo1,id):
+
+    lt.addLast(catalogo1['id'], id)
+
+
+
+def addProdCompany(catalog, prodcom, movie):
+
+    companies = catalog['production_companies']
+    existincompany = mp.contains(companies, prodcom)
+    if existincompany:
+        entry = mp.get(companies, prodcom)
+        companyadd = me.getValue(entry)
+    else:
+        companyadd = newProd(prodcom)
+        mp.put(companies, prodcom, companyadd)
+    lt.addLast(companyadd['movies'], movie)
+
+
+def addGenre(catalog, genre, movie):
+
+    newgenre = catalog['genres']
+    existgenre = mp.contains(newgenre, genre)
+    if existgenre:
+        entry = mp.get(newgenre, genre)
+        genreToAdd = me.getValue(entry)
+    else:
+        genreToAdd = newProd(genre)
+        mp.put(newgenre, genre, genreToAdd)
+    lt.addLast(genreToAdd['movies'], movie)
+
+
+
+def addDirectorId(catalog1, director, id):
+
+    moviesID = catalog1['directors']
+    existinID = mp.contains(moviesID, director)
+    if existinID:
+        entry = mp.get(moviesID, director)
+        movieAdd = me.getValue(entry)
+    else:
+        movieAdd= newMoviedirect(director)
+        mp.put(moviesID, director, movieAdd)
+    lt.addLast(movieAdd['id'], id)
+
+
+
+
+def newMoviedirect(nameDirector):
+    """
+    Crea una nueva estructura para modelar los libros de un autor
+    y su promedio de ratings
+    """
+    directorCast= {'director': "","id":None, "movies": None,  "average_rating": 0}
+    directorCast['director'] = nameDirector
+    directorCast['id'] = lt.newList('SINGLE_LINKED', compareprodComsCast)    
+    directorCast['movies'] = lt.newList('SINGLE_LINKED', compareprodComsCast)    
+    return directorCast
+
+
+# ==============================
+# Funciones de Comparacion
+# ==============================
+def compareMovieIds(id1, id2):
+    if (id1 == id2):
+        return 0
+    elif id1 > id2:
+        return 1
+    else:
+        return -1
+        
+
+def comparePeliculasByName(keyname, pelicula):
+    """
+    Compara dos nombres de pelicula. El primero es una cadena
+    y el segundo un entry de un map
+    """
+    pelhentry = me.getKey(pelicula)
+    if (keyname == pelhentry):
+        return 0
+    elif (keyname > pelhentry):
+        return 1
+    else:
+        return -1
+
+
+def compareproductionCompanies(keyname, company):
+    authentry = me.getKey(company)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+
+def compareActors(keyname, actor):
+    authentry = me.getKey(actor)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+
+
+def compareprodComsCast(keyname, directorCat):
+
+    authentry = me.getKey(directorCat)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+
+
+
+def compareDirectorIds(id1, id2):
+    if (id1 == id2):
+        return 0
+    elif id1 > id2:
+        return 1
+    else:
+        return -1
+
+
+
+def moviesSize(catalog):
+    return lt.size(catalog['movies'])
+
+
+def getMoviesProdCompany (cat, company):
+    compania = mp.get(cat['production_companies'], company)
+    if compania:
+        return me.getValue(compania)
+    return None
+
+
+
+def getMoviesByDirector(catalog, nameInput):
+    #this function searches with the name defined in the catalogue, not the name in the CS
+
+    directorsearched = mp.get(catalog['directors'], nameInput)
+    if directorsearched:
+        return me.getValue(directorsearched)
+    return None
+
+
+
+def getMoviesGenre(cat, genre):
+    genreresult = mp.get(cat['genres'], genre)
+    if genreresult:
+        return me.getValue(genreresult)
+    return None
+
+
+
+
+
+
 
 # ==============================
 # Funciones de consulta
 # ==============================
 
 
-def connectedComponents(analyzer):
-    """
-    Calcula los componentes conectados del grafo
-    Se utiliza el algoritmo de Kosaraju
-    """
-    analyzer['components'] = scc.KosarajuSCC(analyzer['connections'])
 
     
-    return scc.connectedComponents(analyzer['components'])
-
-
-#def connectedwithID(analyzer, id1,id2):
-#    analyzer['components'] = scc.KosarajuSCC(analyzer['connections'])
-# #    return scc.stronglyConnected(analyzer['components'], id1, id2)
-
-
-
-
-def numSCC(analyzer):
-    sc = scc.KosarajuSCC(analyzer['connections'])
-    """
-    print (sc['idscc'])
-    input ("Clic para continuar .....")
-    """
-    print ("Reverse: ", sc['marked']) 
-    input ("Clic para continuar .....")
-    print ("Componentes conectados: ", sc['components'])
-    input ("Clic para continuar .....")
-    """
-    print ("Reverse: ", scc.sccCount(sc))
-
-    input ("Clic para continuar .....")
-    """
-    return scc.connectedComponents(sc)
-
-def connectedwithID(analyzer, id1,id2):
-    sc = scc.KosarajuSCC(analyzer['connections'])
-    #print (scc.stronglyConnected  (sc,id1,id2))
-    #print (sc['idscc'])
-    #print (m.get(sc['idscc'],id1))
-    #print (m.get(sc['idscc'],id2))
-    #input ("idscc impreso")
-    #print (scc.stronglyConnected  (analyzer,id1,id2))
-
-
-    return scc.stronglyConnected  (sc,id1,id2)
-    
-
-def connectedwithID_1(analyzer, id1):
-    sc = scc.KosarajuSCC(analyzer['connections'])
-    #print (sc['idscc'])
-    #print (sc)
-    #input ("clic este es SCC.....")
-    return sc
-    
-
-
-def minimumCostPaths(analyzer, initialStation):
-    """
-    Calcula los caminos de costo mínimo desde la estacion initialStation
-    a todos los demas vertices del grafo
-    """
-    analyzer['paths'] = djk.Dijkstra(analyzer['connections'], initialStation)
-    return analyzer
-
-
-def hasPath(analyzer, destStation):
-    """
-    Indica si existe un camino desde la estacion inicial a la estación destino
-    Se debe ejecutar primero la funcion minimumCostPaths
-    """
-    return djk.hasPathTo(analyzer['paths'], destStation)
-
-
-def minimumCostPath(analyzer, destStation):
-    """
-    Retorna el camino de costo minimo entre la estacion de inicio
-    y la estacion destino
-    Se debe ejecutar primero la funcion minimumCostPaths
-    """
-    path = djk.pathTo(analyzer['paths'], destStation)
-    return path
-
-
-def totalStops(analyzer):
-    """
-    Retorna el total de estaciones (vertices) del grafo
-    """
-    return gr.numVertices(analyzer['connections'])
-
-
-def totalConnections(analyzer):
-    """
-    Retorna el total arcos del grafo
-    """
-    return gr.numEdges(analyzer['connections'])
-
-
-def servedRoutes(analyzer):
-    """
-    Retorna la estación que sirve a mas rutas.
-    Si existen varias rutas con el mismo numero se
-    retorna una de ellas
-    """
-    lstvert = m.keySet(analyzer['stops'])
-    itlstvert = it.newIterator(lstvert)
-    maxvert = None
-    maxdeg = 0
-    while(it.hasNext(itlstvert)):
-        vert = it.next(itlstvert)
-        lstroutes = m.get(analyzer['stops'], vert)['value']
-        degree = lt.size(lstroutes)
-        if(degree > maxdeg):
-            maxvert = vert
-            maxdeg = degree
-    return maxvert, maxdeg
-
 
 # ==============================
 # Funciones Helper
 # ==============================
 
-def cleanServiceDistance(lastservice, service):
-    """
-    En caso de que el archivo tenga un espacio en la
-    distancia, se reemplaza con cero.
-    """
-    if service['tripduration'] == '':
-        service['tripduration'] = 0
-    if lastservice['tripduration'] == '':
-        lastservice['tripduration'] = 0
 
-
-def formatVertex(service):
-    """
-    Se formatea el nombrer del vertice con el id de la estación
-    seguido de la ruta.
-    """
-    #name = service['end station id'] + '-'
-    #name = name + service['start station id']
-    name = service['start station id']
-    return name
-
-def formatVertey(service):
-    """
-    Se formatea el nombrer del vertice con el id de la estación
-    seguido de la ruta.
-    """
-    #name = service['end station id'] + '-'
-    #name = name + service['start station id']
-    name = service['end station id']
-    return name
 
 
 # ==============================
@@ -340,27 +472,3 @@ def compareIds (id1,id2):
     else:
         return -1
 
-def compareStopIds(stop, keyvaluestop):
-    """
-    Compara dos estaciones
-    """
-    stopcode = keyvaluestop['key']
-    
-    if (stop == stopcode):
-        return 0
-    elif (stop > stopcode):
-        return 1
-    else:
-        return -1
-
-
-def compareroutes(route1, route2):
-    """
-    Compara dos rutas
-    """
-    if (route1 == route2):
-        return 0
-    elif (route1 > route2):
-        return 1
-    else:
-        return -1
