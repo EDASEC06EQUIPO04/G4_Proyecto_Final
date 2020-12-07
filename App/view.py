@@ -144,159 +144,14 @@ def optionThree():
     input ("Clic para conitnuar")
 
 
-def stationRecursive (analyzer,stationc,time):
-    print (stationc)
-    input ("clic vertice que llegar parar a buscar adjacentes.......")
-    station=str(stationc)
-    time_u=time
-    values=gr.adjacentEdges (analyzer,station)
-    print (values)
-    input ("estoy imprimiendo los adyacentes del vertice")
-
-    return time_u
-
 def optionFour():
-    tiempoDisponible=int(input(" Cuanto minutos tienes disponible para la visita? " ))
-    initialStation=input("Inserte el punto de partida Station ID, Ejemplo 72, 79, 82, 83, 119, 120: " )
-    #controller.minimumCostPaths(cont, initialStation)
-    scc3=controller.connectedwithID_1(cont,initialStation)
-    contador=0
-    listaReverse= lt.newList()
-    listaReverse=scc3['reversePost']
-    print (listaReverse)
-    input ("&&&&&&&&&&&&&&&&&& Clic para correr DFS   sobre modos del Stack Reverse    &&&&&&&&&&&&&&&&&&")
-    dfsAns=dfs.DepthFirstSearch(cont['connections'], initialStation)
-    
-    #print (dfsAns)
-
-    j=0
-    listaDSF= lt.newList()
-    """
-    for i in element:
-        if element['value']['marked']==True:
-            listaDSF[j]=element['value']['edgeTo']
-            j=j+1
-    for i in listaDSF:
-        print (listaDSF[i])
-    """
-   
-    print ("********************************** Voy a imprimir el Path uno ****************************************")
-    print ("")
-    #tam=lt.size(listaReverse)
-    tam=len(listaReverse)
-    verX=listaReverse[tam-6]
-    verY=listaReverse[0]
-    #print ("tamano del stack:" , tam, " verx a buscar: ", verX)
-    dfsAnsPathVerX=dfs.pathTo(dfsAns, verX)
-    print (dfsAnsPathVerX)    
-    print (" ")
-    print ("Acabo de imprimir el path desde ", verX, " a ",  initialStation)
-    print (" ")
-    print ("********************************** Voy a imprimir el Path dos ****************************************")
-    print (" ")
-    dfsAnsPathVerY=dfs.pathTo(dfsAns, verY)
-    print (dfsAnsPathVerY)    
-    print (" ")
-    print ("Acabo de imprimir el path desde ", verY, " a ",  initialStation)
-   
-    input ("Clic para encontrar las rutas circuales")
-    stackTam=stack.size(dfsAnsPathVerX)
-    #print ("Tamano dle stack: ", stackTam)
-    #input("clic para cotinuar")
-    ruta1=lt.newList()
- 
-    for i in range (0,stackTam):
-        punto=stack.pop(dfsAnsPathVerX)
-       # print (punto)
-        ruta1[i]=punto
-    
-    tiempoRuta1=0   
-    #print ("Punto 1: ", ruta1[0], " y Punto 2: ", ruta1[1])
-    #print (stackTam)
-    print("")
-    print ("Ruta lineal")
-    print("")
-    for i in range (0,stackTam-1):
-        nodo = gr.getEdge(cont['connections'], ruta1[i], ruta1[i+1])
-        tiempoRuta1= tiempoRuta1+ nodo['weight'] +10
-        print ("Sale de: ", ruta1[i], " a ", ruta1[i+1], " tiempo de recorrido incluye visita: ", round(tiempoRuta1,0))
-
-    print("")
-    print ("Ruta Circular")
-    print("")
-    tiempoRuta1=0
-    pos=0
-    peso=0
-    i=0
-    j=0
-    for i in range (0,stackTam-1):
-        if  (tiempoRuta1<=(tiempoDisponible/3)):
-            nodo = gr.getEdge(cont['connections'], ruta1[i], ruta1[i+1])
-            tiempoRuta1= tiempoRuta1+ nodo['weight'] +10
-            peso=nodo['weight']
-            print ("Sale de: ", ruta1[i], " a ", ruta1[i+1], " tiempo de recorrido incluye visita: ", round(tiempoRuta1,0))
-            pos=i
-            #print ("i: ",i, " pos: ", pos)
-        else:    
-            i=stackTam-1
-
-    #print ("Posicion: ", pos)
-    #nodo = gr.getEdge(cont['connections'], ruta1[pos+1], ruta1[pos])
-    tiempoRuta1= tiempoRuta1+ peso +10
-    print ("Sale de: ", ruta1[pos+1], " a ", ruta1[pos], " tiempo de recorrido incluye visita: ", tiempoRuta1)
-    for k in range (pos,1,-1):
-            nodo = gr.getEdge(cont['connections'], ruta1[k], ruta1[k-1])
-            peso=nodo['weight']
-            tiempoRuta1= tiempoRuta1+ peso +10
-            print ("Sale de: ", ruta1[k], " a ", ruta1[k-1], " tiempo de recorrido incluye visita: ", round(tiempoRuta1,0))
-  
-    nodo = gr.getEdge(cont['connections'], ruta1[1], ruta1[0])
-    peso=nodo['weight']
-    tiempoRuta1= tiempoRuta1+ peso +10
-    print ("Sale de: ", ruta1[1], " a ", ruta1[0], " tiempo de recorrido incluye visita: ", round(tiempoRuta1,0))
-
+     pass
     
 
 def optionFive():
     pass
 
-def optionSix():
-    pass
 
-
-def optionSeven():
-    pass
-
-def optionEight():
-      
-    
-    pass
-
-def optionNine():
-    pass
-
-def optionTen():
-    IdBicicleta=int(input(" Digite el ID de la Bike que quiere consultar, Ejeplo: 32536, 14884, 14919, 14556 ? " ))
-    paradas=cont['stops']
-    idBicisValues=m.valueSet(paradas)
-    #print (idBicisValues)
-    idBicisKeys=m.keySet(paradas)
-    #print (idBicisKeys)
-    tam=m.size(paradas)
-    listaBici=lt.newList('ARRAY_LIST')
-    print ("Voy a buscar", IdBicicleta )
-    #print (paradas)
-    #input("")
-    i=0
-    for k,v in paradas.items():
-        print (k,v)
-        if v==IdBicicleta:
-           listaBici[i]= k
-           i=i+1
-    print ("Esta bicicleta visito las siguientes estaciones")
-     
-    print (listaBici)
-    #input("")
 
 
 
@@ -322,35 +177,13 @@ while True:
         print("Tiempo de ejecución: " + str(executiontime))
 
     elif int(inputs) == 4:
-        #msg = "Estación Base (Ej: 72): "
-        #initialStation = input(msg)
+        
         executiontime = timeit.timeit(optionFour, number=1)
         print("Tiempo de ejecución: " + str(executiontime))
 
     elif int(inputs) == 5:
-        destStation = input("Estación destino (Ej: 15151-10): ")
+        
         executiontime = timeit.timeit(optionFive, number=1)
-        print("Tiempo de ejecución: " + str(executiontime))
-
-    elif int(inputs) == 6:
-        destStation = input("Estación destino (Ej: 15151-10): ")
-        executiontime = timeit.timeit(optionSix, number=1)
-        print("Tiempo de ejecución: " + str(executiontime))
-
-    elif int(inputs) == 7:
-        executiontime = timeit.timeit(optionSeven, number=1)
-        print("Tiempo de ejecución: " + str(executiontime))
-    
-    elif int(inputs) == 8:
-        executiontime = timeit.timeit(optionEight, number=1)
-        print("Tiempo de ejecución: " + str(executiontime))
-    
-    elif int(inputs) == 9:
-        executiontime = timeit.timeit(optionNine, number=1)
-        print("Tiempo de ejecución: " + str(executiontime))
-    
-    elif int(inputs) == 10:
-        executiontime = timeit.timeit(optionTen, number=1)
         print("Tiempo de ejecución: " + str(executiontime))
 
     else:
