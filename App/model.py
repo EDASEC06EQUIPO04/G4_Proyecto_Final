@@ -104,35 +104,9 @@ def updateServiceIndex(map, servicio):
     addServiceIndex(datentry, servicio)
     return map
 
-def addMovie(catalogo,movie):
-    """
-    Esta funcion adiciona un pelicula a la lista de movie,
-    adicionalmente lo guarda en un Map usando como llave su production_companies_I.
-    """
-    lt.addLast(catalogo['movies'], movie)
 
 
 
-def newPelicula(name):
-    """
-    Crea una nueva estructura para modelar los pelicuales de un productora
-    y su promedio de ratings
-    """
-    productora = {'production_companies': "", "movies": None,  "average_rating": 0}
-    productora['production_companies'] = name
-    productora['movies'] = lt.newList('SINGLE_LINKED', comparePeliculasByName)
-    return productora
-
-
-def newProd(name):
-    """
-    Crea una nueva estructura para modelar los libros de un autor
-    y su promedio de ratings
-    """
-    company= {'production_companies': "", "movies": None,  "average_rating": 0}
-    company['production_companies'] = name
-    company['movies'] = lt.newList('SINGLE_LINKED', compareprodComs)    
-    return company
 
 
 def compareprodComs(keyname, company):
@@ -150,25 +124,8 @@ def compareprodComs(keyname, company):
 
 
 
-#pretty sure this one is referenced by nothing and can be deleted
-#dont delete without validating it is in fact useless
 
 
-def addProductionCompany(catalog, companyName, movie):
-
-    nombrePelicula = catalog['original_title']
-    print ("")
-    print ("\n", nombrePelicula)
-    input (" Clic para continuar despues de nombre pelicula...")
-
-    #existePelicula = mp.contains(nombrePelicula, companyName)
-    existePelicula = mp.contains(catalog['production_companies_ID'], companyName)
-
-    if existePelicula:
-        entry = mp.get(catalog['production_companies_ID'], companyName)
-        nombrePelicula = me.getValue(entry)
-    else:
-        mp.put(catalog['production_companies_ID'], companyName, nombrePelicula)
 
 #################################################    
 #### Adiciona una servicios a una compania   #### 
@@ -225,33 +182,7 @@ def newServicioT(name):
 
 
 
-def addDirector(catalog, director):
-#each row builds a catal;ogue entry from csv2
 
-#this row corresponds to the rows in the CSV
-    newdic = newDirector(director['director_name'], director['actor1_name'], director['id'])
-
-#these rows are the names assigned in the catalogue. note first item in brackest is the assigned name of the new catalogue, second one is the reference matching CSV and first line
-    mp.put(catalog['directors'], director['director_name'], newdic)
-    mp.put(catalog['actors1'], director['actor1_name'], newdic)
-    mp.put(catalog['movieIds'], director['id'], newdic)
-
-
-
-
-def newDirector(director, actor1, id):
-
-    casting= {'director': '',
-            'actor1': '',
-            'movieId': '',
-            'total_movies': 0,
-            'movies': None,
-            'count': 0.0}
-    casting['director'] = director
-    casting['actor1'] = actor1
-    casting['movieIds'] = id
-    casting['movies'] = lt.newList()
-    return casting
 
 
 
@@ -262,64 +193,6 @@ def newDirector(director, actor1, id):
 # ==============================
 
 
-def addId(catalogo1,id):
-
-    lt.addLast(catalogo1['id'], id)
-
-
-
-def addProdCompany(catalog, prodcom, movie):
-
-    companies = catalog['production_companies']
-    existincompany = mp.contains(companies, prodcom)
-    if existincompany:
-        entry = mp.get(companies, prodcom)
-        companyadd = me.getValue(entry)
-    else:
-        companyadd = newProd(prodcom)
-        mp.put(companies, prodcom, companyadd)
-    lt.addLast(companyadd['movies'], movie)
-
-
-def addGenre(catalog, genre, movie):
-
-    newgenre = catalog['genres']
-    existgenre = mp.contains(newgenre, genre)
-    if existgenre:
-        entry = mp.get(newgenre, genre)
-        genreToAdd = me.getValue(entry)
-    else:
-        genreToAdd = newProd(genre)
-        mp.put(newgenre, genre, genreToAdd)
-    lt.addLast(genreToAdd['movies'], movie)
-
-
-
-def addDirectorId(catalog1, director, id):
-
-    moviesID = catalog1['directors']
-    existinID = mp.contains(moviesID, director)
-    if existinID:
-        entry = mp.get(moviesID, director)
-        movieAdd = me.getValue(entry)
-    else:
-        movieAdd= newMoviedirect(director)
-        mp.put(moviesID, director, movieAdd)
-    lt.addLast(movieAdd['id'], id)
-
-
-
-
-def newMoviedirect(nameDirector):
-    """
-    Crea una nueva estructura para modelar los libros de un autor
-    y su promedio de ratings
-    """
-    directorCast= {'director': "","id":None, "movies": None,  "average_rating": 0}
-    directorCast['director'] = nameDirector
-    directorCast['id'] = lt.newList('SINGLE_LINKED', compareprodComsCast)    
-    directorCast['movies'] = lt.newList('SINGLE_LINKED', compareprodComsCast)    
-    return directorCast
 
 
 # ==============================
