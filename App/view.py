@@ -29,6 +29,7 @@
 import sys
 import config
 from App import controller
+from App import model
 from DISClib.ADT import stack
 import timeit
 assert config
@@ -106,7 +107,22 @@ def optionThree():
     print ("  ") 
     print ("Cantidad de companias: ", om.size(cont['companias']))  
     print ("  ")
-    print ("Cantidad de taxis: ", om.size(cont['taxiIndex']))  
+    print ("Cantidad de taxis: ", om.size(cont['taxiIndex'])) 
+
+    numM = int(input ("Digite el numero de companias a consultar: " ))
+    ordenar=model.compOrdTaxis (cont)
+    print ("")
+    print ("*********************************************************")
+    print ("**    Companias con su respectiva cantidad de Taxis    **")
+    print ("*********************************************************")
+    for i in range(0,numM):
+        print(lt.getElement(ordenar,i))
+    print ("")
+    print ("*********************************************************")
+    input("Clic para continuar")
+
+
+    """
     print ("  ")   
     input ("" )
     print ("++++++++++++++++++++++++++Nombre de las companias ++++++++++++++++++++++++++++++++++++++++++") 
@@ -124,7 +140,8 @@ def optionThree():
     print ("La cantidad de servicios prestados por @@ 2733 - 74600 Benny Jona: ", tam.values())
     print ("  ")
     input (" Clic para ver a  continuacion servicios prestdos por el taxi")
-
+    """        
+    """
     print ("++++++++++++++++++++++++++ Cantidad de servicios prestados por el Taxi +++++++++++++++++++++++++++++++++++++") 
     print ("  ")
     print (om.get(cont['taxiIndex'],'47afa2ad8334a794871c5a7e9785925599304a77c3d9cc49dd7362dce26e0c44b5a262c342084cb82c1a61b3f46f06b7083b0e737f6655ec09ec8f44ff9c3cb8'))
@@ -133,6 +150,7 @@ def optionThree():
     print ("La cantidad de servicios prestados por el taxi @@ ", tam1.values())
     lista=lt.newList()
     lista=om.valueSet(cont['taxiIndex'])
+
     print ("+++++++++++++++++++++++")
     print (lt.getElement (lista,0))
     print ("+++++++++++++++++++++++")
@@ -142,7 +160,7 @@ def optionThree():
    
     print ("")
     input ("Clic para conitnuar")
-
+    """
 
 def optionFour():
      pass

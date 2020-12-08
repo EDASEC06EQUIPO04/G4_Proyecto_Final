@@ -35,6 +35,9 @@ from DISClib.Algorithms.Graphs import dijsktra as djk
 from DISClib.Utils import error as error
 from DISClib.DataStructures import edge as e
 from DISClib.DataStructures import mapentry as me
+from DISClib.ADT import minpq as mp
+from DISClib.Algorithms.Sorting import quicksort as qs
+from DISClib.Algorithms.Sorting import insertionsort as inSort
 
 assert config
 """
@@ -53,36 +56,84 @@ def newAnalyzer():
     # crea un Cataolo de Analyzer, una lista para los Companias y una Mapa Ordenado los servicios y taxis
     analyzer={  'servicioIndex':None, 
                 'companias':None,
-                'taxiIndex':None
+                'taxiIndex':None,
+                'CompaniasConTaxis':None
             }
     analyzer['servicioIndex']=lt.newList('SINGLE_LINKED',compareIds)
 
     analyzer['companias']=om.newMap(omaptype='RBT',comparefunction=compareServicio)
     analyzer['taxiIndex']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)
-         
+    analyzer['CompaniasConTaxis']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)    
+
     return analyzer
  
 
-# Funciones para agregar informacion al grafo
+# Funciones otras
+
+def compOrdTaxis (analyzer):
+    ordenados = lt.newList('ARRAY_LIST')
+    recorrer = om.keySet(analyzer["CompaniasConTaxis"])
+
+    for i in range(lt.size(recorrer)):
+        lt.addLast(ordenados,(om.size(om.get(analyzer["CompaniasConTaxis"],lt.getElement(recorrer,i))['value']),lt.getElement(recorrer,i)))
+
+    #qs.quickSort(ordenados,compareCustom)
+    #inSort.insertionSort(ordenados,lessfunction)
+    """
+    size = lt.size(ordenados)
+    pos1 = 1
+    while pos1 <= size:
+        pos2 = pos1
+        while (pos2 > 1) and (lt.getElement(ordenados, pos2)< lt.getElement(ordenados, pos2-1)):
+            lt.exchange(ordenados, pos2, pos2-1)
+            pos2 -= 1
+        pos1 += 1
+    """
+    return ordenados
+
+
+def lessfunction (elemento1, elemento2):
+    if elemento1<elemento2:
+      return True
+    return False
+
+# Funcion para la camtidad de companias 
+
+def addCompaniaTaxi(analyzer, compania, idTaxi):
+    
+    if om.contains(analyzer['CompaniasConTaxis'],compania):
+        temp = om.get(analyzer['CompaniasConTaxis'],compania)['value']
+        om.put(temp,idTaxi,0)
+    else:
+        temp = om.newMap(omaptype='RBT',comparefunction=compareTaxi)
+        om.put(temp,idTaxi,0)
+        om.put(analyzer['CompaniasConTaxis'],compania,temp)
+
+    return analyzer
+
+
+def addServiceCompany(analyzer,service):
+    if(om.contains(analyzer["companias"],service['company'])):
+        lt.addLast(om.get(analyzer['companias'],service['company'])['value'],service)
+    else:
+        add = lt.newList('SINGLE_LINKED')
+        lt.addLast(add,service)
+        om.put(analyzer["companias"],service["company"],add)
+
 
 def addService(analyzer, service):
 
-    try:
-        lt.addLast(analyzer['servicioIndex'],service)
-        #updateServiceIndex(analyzer['servicioIndex'], service)
-        companies = service['company'].split(";")  # Se obtienen las companias
-        for compania in companies:
-            addSerCompany(analyzer, compania.strip(), service)
-            
-        taxiss = service['taxi_id'].split(";")  # Se obtienen las companias
-        for taxi in taxiss:
-            addSerTaxi(analyzer, taxi.strip(), service)
+    
+    addCompaniaTaxi(analyzer,service['company'],service['taxi_id'])
 
+    lt.addLast(analyzer['servicioIndex'],service)
+    
+    addServiceCompany(analyzer, service)
+        
+    om.put(analyzer['taxiIndex'],service['taxi_id'],0)
 
-        return analyzer
-    except Exception as exp:
-        error.reraise(exp, 'model:addStopConnection')
-
+    return analyzer
+    
 def updateServiceIndex(map, servicio):
     """
     Se toma cada companiay se busca si ya existe en el arbol. Si es asi, se adiciona a su lista de servicios
@@ -344,4 +395,11 @@ def compareIds (id1,id2):
         return 1
     else:
         return -1
+
+def compareCustom(val1,val2):
+    if(val1[0] > val2[0]):
+        return -1
+    elif(val1[0] < val2[0]):
+        return 0
+    return compareIds(val1[1],val2[1])
 
