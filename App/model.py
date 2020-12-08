@@ -70,19 +70,24 @@ def newAnalyzer():
     return analyzer
  
 
-# Funciones otras
+# ---------------------------------------------------------------
+#                       Requerimiento Uno (1)
+# ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+#                Requerimiento Uno (1) Funciones de Consulta
+# ---------------------------------------------------------------
 
 def compOrdTaxis (analyzer):
-    #ordenados = lt.newList('ARRAY_LIST')
-    ordenados = lt.newList('SINGLE_LINKED',compareIds)
+    # Funcion para recorrer las llaves del mapa analyzer["CompaniasConTaxis"]
+    # usando una lista temporal, y realiazando un ordenamiento InsertionSort
+    
+    ordenados = lt.newList('SINGLE_LINKD',compareIds)
     recorrer = om.keySet(analyzer["CompaniasConTaxis"])
 
     for i in range(lt.size(recorrer)):
         lt.addLast(ordenados,(om.size(om.get(analyzer["CompaniasConTaxis"],lt.getElement(recorrer,i))['value']),lt.getElement(recorrer,i)))
-
-    #ordenados=qs.quickSort(ordenados,lessfunction)
-    #inSort.insertionSort(ordenados,lessfunction)
-    
+    #ordenados=qs.quickSort(ordenados,lessfunction) 
     size = lt.size(ordenados)
     pos1 = 1
     while pos1 <= size:
@@ -95,16 +100,15 @@ def compOrdTaxis (analyzer):
     return ordenados
 
 def compOrdServicios (analyzer):
-    #ordenados = lt.newList('ARRAY_LIST')
+    # Funcion para recorrer las llaves del mapa analyzer["CompaniasConServicios"]
+    # usando una lista temporal, y realiazando un ordenamiento InsertionSort
     ordenados = lt.newList('SINGLE_LINKED',compareIds)
     recorrer = om.keySet(analyzer["CompaniasConServicios"])
 
     for i in range(lt.size(recorrer)):
         lt.addLast(ordenados,(om.size(om.get(analyzer["CompaniasConServicios"],lt.getElement(recorrer,i))['value']),lt.getElement(recorrer,i)))
-
     #ordenados=qs.quickSort(ordenados,lessfunction)
-    #inSort.insertionSort(ordenados,lessfunction)
-    
+       
     size = lt.size(ordenados)
     pos1 = 1
     while pos1 <= size:
@@ -122,7 +126,18 @@ def lessfunction (elemento1, elemento2):
       return True
     return False
 
- 
+# ---------------------------------------------------------------
+#   Requerimiento Uno (1) Funciones de Carga de Listas y Maps
+# ---------------------------------------------------------------
+
+def addService(analyzer, service): 
+    addCompaniaTaxi(analyzer,service['company'],service['taxi_id'])
+    addCompaniaServicio(analyzer,service['company'], service['trip_id'])
+    lt.addLast(analyzer['servicioIndex'],service)
+    addServiceCompany(analyzer, service)
+    om.put(analyzer['taxiIndex'],service['taxi_id'],0)
+
+    return analyzer
 
 def addCompaniaTaxi(analyzer, compania, idTaxi):
     """
@@ -166,45 +181,6 @@ def addServiceCompany(analyzer,service):
         om.put(analyzer["companias"],service["company"],add)
 
 
-def addService(analyzer, service):
-
-    
-    addCompaniaTaxi(analyzer,service['company'],service['taxi_id'])
-    addCompaniaServicio(analyzer,service['company'], service['trip_id'])
-
-    lt.addLast(analyzer['servicioIndex'],service)
-    
-    addServiceCompany(analyzer, service)
-        
-    om.put(analyzer['taxiIndex'],service['taxi_id'],0)
-
-    return analyzer
-    
-def updateServiceIndex(map, servicio):
-    """
-    Se toma cada companiay se busca si ya existe en el arbol. Si es asi, se adiciona a su lista de servicios
-    y se actualiza el indice de servicios.
-    Si no se encuentra creado un nodo para la compania en el arbol
-    se crea y se actualiza el indice de tipos de servicios
-    """
-    companyName= servicio['company']
-    ocurreService = servicio['trip_id']
-    ocurreTaxi = servicio['taxi_id']
-    
-    entry = om.get(map, ocurreService)
-
-    if entry is None:
-        #datentry = newDataEntry(servicio)
-        om.put(map, companyName, ocurreService)
-    else:
-        datentry = me.getValue(entry)
-    addServiceIndex(datentry, servicio)
-    return map
-
-
-
-
-
 
 def compareprodComs(keyname, company):
     """
@@ -220,197 +196,9 @@ def compareprodComs(keyname, company):
         return -1
 
 
-
-
-
-
-#################################################    
-#### Adiciona una servicios a una compania   #### 
-#################################################  
-
-def addSerCompany(catalog, compania, service):
-    
-    companias = catalog['companias']
-    existincompany = om.contains(companias, compania)
-    if existincompany:
-        entry = om.get(companias , compania)
-        serviceAdd = me.getValue(entry)
-    else:
-        serviceAdd = newServicio(compania)
-        om.put(companias , compania, serviceAdd)
-    lt.addLast(serviceAdd['trip_id'], service)
-    #print (lt.size (serviceAdd['trip_id']))
-    
-def newServicio(name):
-    """
-    Crea una nueva estructura para modelar los libros de un autor
-    y su promedio de ratings
-    """
-    servicio= {'company': "", "trip_id": None,  "taxi_id": None}
-    servicio['company'] = name
-    servicio['trip_id'] = lt.newList('SINGLE_LINKED', compareprodComs)      
-    return servicio
-
-def addSerTaxi(catalog, taxi_id, service):
-    taxis = catalog['taxiIndex']
-    existincompany = om.contains(taxis, taxi_id)
-    if existincompany:
-        entry = om.get(taxis , taxi_id)
-        serviceAdd = me.getValue(entry)
-    else:
-        serviceAdd = newServicioT(taxi_id)
-        om.put(taxis , taxi_id, serviceAdd)
-    lt.addLast(serviceAdd['trip_id'], service)
-    #print (lt.size (serviceAdd['trip_id']))
-    
-
-def newServicioT(name):
-    """
-    Crea una nueva estructura para modelar los libros de un autor
-    y su promedio de ratings
-    """
-    servicio= {'company': "", "trip_id": None,  "taxi_id": None}
-    servicio['taxi_id'] = name
-    servicio['trip_id'] = lt.newList('SINGLE_LINKED', compareprodComs)    
-     
-    return servicio
-
-
-
-
-
-
-
-
-
-
-
-# ==============================
-# Funciones de adicion
-# ==============================
-
-
-
-
-# ==============================
-# Funciones de Comparacion
-# ==============================
-def compareMovieIds(id1, id2):
-    if (id1 == id2):
-        return 0
-    elif id1 > id2:
-        return 1
-    else:
-        return -1
-        
-
-def comparePeliculasByName(keyname, pelicula):
-    """
-    Compara dos nombres de pelicula. El primero es una cadena
-    y el segundo un entry de un map
-    """
-    pelhentry = me.getKey(pelicula)
-    if (keyname == pelhentry):
-        return 0
-    elif (keyname > pelhentry):
-        return 1
-    else:
-        return -1
-
-
-def compareproductionCompanies(keyname, company):
-    authentry = me.getKey(company)
-    if (keyname == authentry):
-        return 0
-    elif (keyname > authentry):
-        return 1
-    else:
-        return -1
-
-def compareActors(keyname, actor):
-    authentry = me.getKey(actor)
-    if (keyname == authentry):
-        return 0
-    elif (keyname > authentry):
-        return 1
-    else:
-        return -1
-
-
-def compareprodComsCast(keyname, directorCat):
-
-    authentry = me.getKey(directorCat)
-    if (keyname == authentry):
-        return 0
-    elif (keyname > authentry):
-        return 1
-    else:
-        return -1
-
-
-
-def compareDirectorIds(id1, id2):
-    if (id1 == id2):
-        return 0
-    elif id1 > id2:
-        return 1
-    else:
-        return -1
-
-
-
-def moviesSize(catalog):
-    return lt.size(catalog['movies'])
-
-
-def getMoviesProdCompany (cat, company):
-    compania = mp.get(cat['production_companies'], company)
-    if compania:
-        return me.getValue(compania)
-    return None
-
-
-
-def getMoviesByDirector(catalog, nameInput):
-    #this function searches with the name defined in the catalogue, not the name in the CS
-
-    directorsearched = mp.get(catalog['directors'], nameInput)
-    if directorsearched:
-        return me.getValue(directorsearched)
-    return None
-
-
-
-def getMoviesGenre(cat, genre):
-    genreresult = mp.get(cat['genres'], genre)
-    if genreresult:
-        return me.getValue(genreresult)
-    return None
-
-
-
-
-
-
-
-# ==============================
-# Funciones de consulta
-# ==============================
-
-
-
-    
-
-# ==============================
-# Funciones Helper
-# ==============================
-
-
-
-
-# ==============================
-# Funciones de Comparacion
-# ==============================
+# ---------------------------------------------------------------
+#   Requerimiento Uno (1) Funciones de Comparacion
+# ---------------------------------------------------------------
 
 def compareServicio (servicioID1,servicioID2):
     
@@ -448,4 +236,39 @@ def compareCustom(val1,val2):
     elif(val1[0] < val2[0]):
         return 0
     return compareIds(val1[1],val2[1])
+
+# ---------------------------------------------------------------
+#                       Requerimiento dos (2)
+# ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+#                       Requerimiento tres (3)
+# ---------------------------------------------------------------
+
+# ==============================
+# Funciones de adicion
+# ==============================
+
+
+
+
+# ==============================
+# Funciones de Comparacion
+# ==============================
+
+
+
+
+# ==============================
+# Funciones de consulta
+# ==============================
+
+
+
+    
+
+# ==============================
+# Funciones Helper
+# ==============================
+
 

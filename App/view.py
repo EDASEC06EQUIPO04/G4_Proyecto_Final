@@ -25,7 +25,6 @@
  """
 
 
-
 import sys
 import config
 from App import controller
@@ -93,9 +92,6 @@ def optionTwo():
     
     servicio=lt.getElement(cont1['servicioIndex'],0)
     print (servicio['taxi_id'])
-
-
-
 
     
 def optionThree():

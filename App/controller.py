@@ -23,7 +23,7 @@
  * Dario Correal
  *
  """
-
+ 
 import config as cf
 from App import model
 import csv
@@ -51,7 +51,6 @@ def init():
     analyzer = model.newAnalyzer()
     return analyzer
 
-
 # ___________________________________________________
 #  Funciones para la carga de datos y almacenamiento
 #  de datos en los modelos
@@ -69,43 +68,10 @@ def loadServices(analyzer,servicesfile):
     """
     filename = cf.data_dir + servicesfile
     input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
-      
     
     for service in input_file:
         model.addService(analyzer, service) 
-
     return analyzer
-
-   
-
-
-def loadFile(analyzer, tripfile):
-    """
-    """
-    tripfile = cf.data_dir + tripfile
-    input_file = csv.DictReader(open(tripfile, encoding="utf-8"),
-                                delimiter=",")
-    lastservice = None
-    i=0
-
-    print ("input_file")
-    #for service in input_file:
-    
-
-    """
-    for service in input_file:
-
-        
-        if lastservice is not None:
-
-            sameservice = lastservice['start station id'] == service['start station id'] 
-            samedirection = lastservice['end station id'] == service['end station id']
-            model.addStopConnection(analyzer, lastservice, service)      
-        lastservice = service
-    model.addRouteConnections(analyzer)
-    """
-    return analyzer
-
 
 
 
@@ -114,58 +80,3 @@ def loadFile(analyzer, tripfile):
 # ___________________________________________________
 
 
-def totalStops(analyzer):
-    """
-    Total de paradas de autobus
-    """
-    return model.totalStops(analyzer)
-
-
-def totalConnections(analyzer):
-    """
-    Total de enlaces entre las paradas
-    """
-    return model.totalConnections(analyzer)
-
-
-def connectedComponents(analyzer):
-    """
-    Numero de componentes fuertemente conectados
-    """
-    return model.numSCC(analyzer)
-
-
-def connectedwithID(cont, id1,id2):
-    return model.connectedwithID(cont, id1,id2)
-
-def connectedwithID_1(cont, id1):
-    return model.connectedwithID_1(cont, id1)
-
-def minimumCostPaths(analyzer, initialStation):
-    """
-    Calcula todos los caminos de costo minimo de initialStation a todas
-    las otras estaciones del sistema
-    """
-    return model.minimumCostPaths(analyzer, initialStation)
-
-
-def hasPath(analyzer, destStation):
-    """
-    Informa si existe un camino entre initialStation y destStation
-    """
-    return model.hasPath(analyzer, destStation)
-
-
-def minimumCostPath(analyzer, destStation):
-    """
-    Retorna el camino de costo minimo desde initialStation a destStation
-    """
-    return model.minimumCostPath(analyzer, destStation)
-
-
-def servedRoutes(analyzer):
-    """
-    Retorna el camino de costo minimo desde initialStation a destStation
-    """
-    maxvert, maxdeg = model.servedRoutes(analyzer)
-    return maxvert, maxdeg
