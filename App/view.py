@@ -108,59 +108,36 @@ def optionThree():
     print ("Cantidad de companias: ", om.size(cont['companias']))  
     print ("  ")
     print ("Cantidad de taxis: ", om.size(cont['taxiIndex'])) 
+    print ("")
 
-    numM = int(input ("Digite el numero de companias a consultar: " ))
+    numM = int(input ("Cuantas Companias a consultar con sus Taxis: " ))
     ordenar=model.compOrdTaxis (cont)
     print ("")
     print ("*********************************************************")
     print ("**    Companias con su respectiva cantidad de Taxis    **")
     print ("*********************************************************")
-    for i in range(0,numM):
-        print(lt.getElement(ordenar,i))
+    for i in range(1,numM+1):
+        print(i, " : ", lt.getElement(ordenar,i)[1], ": [ ", lt.getElement(ordenar,i)[0], " ]")
     print ("")
     print ("*********************************************************")
-    input("Clic para continuar")
-
-
-    """
-    print ("  ")   
-    input ("" )
-    print ("++++++++++++++++++++++++++Nombre de las companias ++++++++++++++++++++++++++++++++++++++++++") 
-    print ("  ")
-    print (om.keySet(cont['companias']))
-    print ("  ")
-    print ("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++") 
-    print ("   ")
-    input ("")
-    print ("++++++++++++++++++++++++++ Cantidad de serviios prestados +++++++++++++++++++++++++++++++++++++") 
-    print ("  ")
-    print (om.get(cont['companias'],'2733 - 74600 Benny Jona'))
-    print ("  ")
-    tam =(om.get(cont['companias'],'2733 - 74600 Benny Jona'))
-    print ("La cantidad de servicios prestados por @@ 2733 - 74600 Benny Jona: ", tam.values())
-    print ("  ")
-    input (" Clic para ver a  continuacion servicios prestdos por el taxi")
-    """        
-    """
-    print ("++++++++++++++++++++++++++ Cantidad de servicios prestados por el Taxi +++++++++++++++++++++++++++++++++++++") 
-    print ("  ")
-    print (om.get(cont['taxiIndex'],'47afa2ad8334a794871c5a7e9785925599304a77c3d9cc49dd7362dce26e0c44b5a262c342084cb82c1a61b3f46f06b7083b0e737f6655ec09ec8f44ff9c3cb8'))
-    print ("  ")
-    tam1 =(om.get(cont['taxiIndex'],'47afa2ad8334a794871c5a7e9785925599304a77c3d9cc49dd7362dce26e0c44b5a262c342084cb82c1a61b3f46f06b7083b0e737f6655ec09ec8f44ff9c3cb8'))
-    print ("La cantidad de servicios prestados por el taxi @@ ", tam1.values())
-    lista=lt.newList()
-    lista=om.valueSet(cont['taxiIndex'])
-
-    print ("+++++++++++++++++++++++")
-    print (lt.getElement (lista,0))
-    print ("+++++++++++++++++++++++")
-    print ("La cantidad de taxis: " , lt.size (lista))
-    
-    #print ("Cantidad de companias que prestan servicios: ", om.keySet(mapaServicios))
-   
     print ("")
-    input ("Clic para conitnuar")
-    """
+    input("Clic para continuar.....")
+    print ("")
+
+    numN = int(input ("Cuantas Companias a consultar con sus Servicios: " ))
+    ordenarS=model.compOrdServicios (cont)
+    print ("")
+    print ("*********************************************************")
+    print ("**    Companias con su respectiva cantidad de Taxis    **")
+    print ("*********************************************************")
+    for i in range(1,numN+1):
+        print(i, ": ", lt.getElement(ordenarS,i)[1], ": [ ", lt.getElement(ordenarS,i)[0], " ]")
+    print ("")
+    print ("*********************************************************")
+    print ("")
+    input("Clic para continuar.....")
+    print ("")
+
 
 def optionFour():
      pass

@@ -57,13 +57,15 @@ def newAnalyzer():
     analyzer={  'servicioIndex':None, 
                 'companias':None,
                 'taxiIndex':None,
+                'CompaniasConServicios':None,
                 'CompaniasConTaxis':None
             }
     analyzer['servicioIndex']=lt.newList('SINGLE_LINKED',compareIds)
 
     analyzer['companias']=om.newMap(omaptype='RBT',comparefunction=compareServicio)
     analyzer['taxiIndex']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)
-    analyzer['CompaniasConTaxis']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)    
+    analyzer['CompaniasConTaxis']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)
+    analyzer['CompaniasConServicios']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)     
 
     return analyzer
  
@@ -71,24 +73,47 @@ def newAnalyzer():
 # Funciones otras
 
 def compOrdTaxis (analyzer):
-    ordenados = lt.newList('ARRAY_LIST')
+    #ordenados = lt.newList('ARRAY_LIST')
+    ordenados = lt.newList('SINGLE_LINKED',compareIds)
     recorrer = om.keySet(analyzer["CompaniasConTaxis"])
 
     for i in range(lt.size(recorrer)):
         lt.addLast(ordenados,(om.size(om.get(analyzer["CompaniasConTaxis"],lt.getElement(recorrer,i))['value']),lt.getElement(recorrer,i)))
 
-    #qs.quickSort(ordenados,compareCustom)
+    #ordenados=qs.quickSort(ordenados,lessfunction)
     #inSort.insertionSort(ordenados,lessfunction)
-    """
+    
     size = lt.size(ordenados)
     pos1 = 1
     while pos1 <= size:
         pos2 = pos1
-        while (pos2 > 1) and (lt.getElement(ordenados, pos2)< lt.getElement(ordenados, pos2-1)):
+        while (pos2 > 1) and (lt.getElement(ordenados, pos2)[0]> lt.getElement(ordenados, pos2-1)[0]):
             lt.exchange(ordenados, pos2, pos2-1)
             pos2 -= 1
         pos1 += 1
-    """
+    
+    return ordenados
+
+def compOrdServicios (analyzer):
+    #ordenados = lt.newList('ARRAY_LIST')
+    ordenados = lt.newList('SINGLE_LINKED',compareIds)
+    recorrer = om.keySet(analyzer["CompaniasConServicios"])
+
+    for i in range(lt.size(recorrer)):
+        lt.addLast(ordenados,(om.size(om.get(analyzer["CompaniasConServicios"],lt.getElement(recorrer,i))['value']),lt.getElement(recorrer,i)))
+
+    #ordenados=qs.quickSort(ordenados,lessfunction)
+    #inSort.insertionSort(ordenados,lessfunction)
+    
+    size = lt.size(ordenados)
+    pos1 = 1
+    while pos1 <= size:
+        pos2 = pos1
+        while (pos2 > 1) and (lt.getElement(ordenados, pos2)[0]> lt.getElement(ordenados, pos2-1)[0]):
+            lt.exchange(ordenados, pos2, pos2-1)
+            pos2 -= 1
+        pos1 += 1
+    
     return ordenados
 
 
@@ -97,10 +122,14 @@ def lessfunction (elemento1, elemento2):
       return True
     return False
 
-# Funcion para la camtidad de companias 
+ 
 
 def addCompaniaTaxi(analyzer, compania, idTaxi):
-    
+    """
+    Esta funcion carga la companias y mapa con los IdTaxis, permite contabilizar los  taxis 
+    que estan inscritos en una Compania X de taxis.
+
+    """
     if om.contains(analyzer['CompaniasConTaxis'],compania):
         temp = om.get(analyzer['CompaniasConTaxis'],compania)['value']
         om.put(temp,idTaxi,0)
@@ -108,6 +137,22 @@ def addCompaniaTaxi(analyzer, compania, idTaxi):
         temp = om.newMap(omaptype='RBT',comparefunction=compareTaxi)
         om.put(temp,idTaxi,0)
         om.put(analyzer['CompaniasConTaxis'],compania,temp)
+    return analyzer
+
+
+def addCompaniaServicio(analyzer, compania, trip_id):
+    """
+    Esta funcion carga la companias y mapa con los IdTRip, permite contabilizar los servicios 
+    prestados por una Compania X.
+
+    """
+    if om.contains(analyzer['CompaniasConServicios'],compania):
+        temp = om.get(analyzer['CompaniasConServicios'],compania)['value']
+        om.put(temp,trip_id,0)
+    else:
+        temp = om.newMap(omaptype='RBT',comparefunction=compareTaxi)
+        om.put(temp,trip_id,0)
+        om.put(analyzer['CompaniasConServicios'],compania,temp)
 
     return analyzer
 
@@ -125,6 +170,7 @@ def addService(analyzer, service):
 
     
     addCompaniaTaxi(analyzer,service['company'],service['taxi_id'])
+    addCompaniaServicio(analyzer,service['company'], service['trip_id'])
 
     lt.addLast(analyzer['servicioIndex'],service)
     
