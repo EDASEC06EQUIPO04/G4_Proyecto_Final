@@ -90,8 +90,8 @@ def optionTwo():
         servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
     cont1=controller.loadServices(cont,servicefile)
     
-    servicio=lt.getElement(cont1['servicioIndex'],0)
-    print (servicio['taxi_id'])
+    #servicio=lt.getElement(cont1['servicioIndex'],0)
+    #print (servicio['taxi_id'])
 
     
 def optionThree():
@@ -99,19 +99,27 @@ def optionThree():
     #mapaServicios=cont['servicioIndex']
     
     #print ("Cantidad de companias que prestan servicios: ", om.size(mapaServicios))
+    print ("")
+    print ("*********************************************************")
+    print ("** Datos generales  de Servicios, Companias y Taxis    **")
+    print ("*********************************************************")
+    print ("")
     print ("Cantidad de servicios prestados: ", lt.size(cont['servicioIndex']))
     print ("  ") 
     print ("Cantidad de companias: ", om.size(cont['companias']))  
     print ("  ")
     print ("Cantidad de taxis: ", om.size(cont['taxiIndex'])) 
     print ("")
-
-    numM = int(input ("Cuantas Companias a consultar con sus Taxis: " ))
+    print ("")
+    print ("*********************************************************")
+    print ("")
+    numM = int(input ("Cuantas Companias a consultar con sus Taxis ? : " ))
     ordenar=model.compOrdTaxis (cont)
     print ("")
     print ("*********************************************************")
     print ("**    Companias con su respectiva cantidad de Taxis    **")
     print ("*********************************************************")
+    print ("")
     for i in range(1,numM+1):
         print(i, " : ", lt.getElement(ordenar,i)[1], ": [ ", lt.getElement(ordenar,i)[0], " ]")
     print ("")
@@ -120,11 +128,11 @@ def optionThree():
     input("Clic para continuar.....")
     print ("")
 
-    numN = int(input ("Cuantas Companias a consultar con sus Servicios: " ))
+    numN = int(input ("Cuantas Companias a consultar con sus Servicios ? : " ))
     ordenarS=model.compOrdServicios (cont)
     print ("")
     print ("*********************************************************")
-    print ("**    Companias con su respectiva cantidad de Taxis    **")
+    print ("**    Companias con su respectiva Cantidad de Servicios    **")
     print ("*********************************************************")
     for i in range(1,numN+1):
         print(i, ": ", lt.getElement(ordenarS,i)[1], ": [ ", lt.getElement(ordenarS,i)[0], " ]")
