@@ -269,13 +269,12 @@ def addTrip(graph, service):
     duration=service["trip_seconds"]
 
 
-    if (origin_community_area == '') or (destination_community_area == '') or (duration == ''):
-        None
+    if (duration == ''):
+        pass
     else:
         duration=float(duration)
         add_community_area(graph,origin_community_area)
         add_community_area(graph,destination_community_area)
-
         add_CA_Connection(graph, origin_community_area, destination_community_area, duration)
 
 
