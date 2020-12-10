@@ -76,10 +76,28 @@ def loadServices(analyzer,servicesfile, graph):
     filename = cf.data_dir + servicesfile
     input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
     
+    #lastservice = None
+    
     for service in input_file:
-        model.addService(analyzer, service) 
-        model.addTrip(graph,service)
         
+        
+        #model.addService(analyzer, service) 
+
+        model.addTrip(graph,service) 
+        
+        """
+        if lastservice is not None:
+
+            sameservice = lastservice['pickup_community_area'] == service['pickup_community_area'] 
+            samedirection = lastservice['dropoff_community_area'] == service['dropoff_community_area']
+
+            if sameservice and samedirection:
+                  
+
+        lastservice = service
+
+    model.addRouteConnections(graph)
+    """
     return analyzer
 
 

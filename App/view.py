@@ -54,7 +54,7 @@ operación seleccionada.
 
 
 initialStation = None
-recursionLimit = 20000
+recursionLimit = 20000000000000000000000000000000000000000
 
 
 # ___________________________________________________
@@ -88,10 +88,11 @@ def optionTwo():
         servicefile = 'taxi-trips-wrvz-psew-subset-medium.csv'
     else:
         servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
+
     cont1=controller.loadServices(cont,servicefile,graph)
     
-    servicio=lt.getElement(cont1['servicioIndex'],0)
-    print (servicio['taxi_id'])
+    #servicio=lt.getElement(cont1['servicioIndex'],0)
+    #print (servicio['taxi_id'])
 
     
 def optionThree():
@@ -140,11 +141,19 @@ def optionFour():
     
 
 def optionFive():
-    
-    print(graph)
+    """
+    print(gr.vertices(graph["grafo"]))
+    print(gr.numEdges(graph["grafo"]))
 
+    arcos=gr.edges(graph["grafo"])
 
+    i=0
+    while i <= lt.size(arcos):
+        print(lt.getElement(arcos,i))
+        i+=1
+    """
 
+    print(graph["grafo"])
 
 """
 Menu principal

@@ -264,19 +264,24 @@ def newGraph():
 
 def addTrip(graph, service):
 
-    origin_community_area= service["pickup_community_area"]
-    destination_community_area=service["dropoff_community_area"]
-    duration=service["trip_seconds"]
+    if service["pickup_community_area"] == '':
+        service["pickup_community_area"] = "-1.0"
+
+    if service["dropoff_community_area"] == '':
+        service["dropoff_community_area"] = "-1.0"
+
+    if service["trip_seconds"] == '':
+        service["trip_seconds"] = "-1.0"
+
+    origin_community_area= float(service["pickup_community_area"])
+    destination_community_area=float(service["dropoff_community_area"])
+    duration=float(service["trip_seconds"])
 
 
-    if (duration == ''):
-        pass
-    else:
-        duration=float(duration)
-        add_community_area(graph,origin_community_area)
-        add_community_area(graph,destination_community_area)
-        add_CA_Connection(graph, origin_community_area, destination_community_area, duration)
-
+    add_community_area(graph,origin_community_area)
+    add_community_area(graph,destination_community_area)
+    addConnection(graph, origin_community_area, destination_community_area, duration)
+    
 
         
 def add_community_area(graph, community_area):
@@ -284,7 +289,7 @@ def add_community_area(graph, community_area):
     Adiciona una estación como un vertice del grafo
     """
     if not gr.containsVertex(graph["grafo"], community_area):
-            gr.insertVertex(graph["grafo"], community_area)
+        gr.insertVertex(graph["grafo"], community_area)
     return graph
 
 
@@ -302,7 +307,7 @@ def add_CA_Connection(graph, origin, destination, duration):
 
 
 def compare_community_areas(stop, keyvaluestop):
-    stopcode = str(keyvaluestop['key'])
+    stopcode = float(keyvaluestop['key'])
     if (stop == stopcode):
         return 0
     elif (stop > stopcode):
@@ -333,3 +338,45 @@ def compare_community_areas(stop, keyvaluestop):
 # ==============================
 # Funciones Helper
 # ==============================
+
+def addConnection(analyzer, origin, destination, distance):
+    """
+    Adiciona un arco entre dos estaciones
+    """
+    edge = gr.getEdge(analyzer['grafo'], origin, destination)
+    if edge is None:
+        gr.addEdge(analyzer['grafo'], origin, destination, distance)
+    else: 
+        if origin == destination:
+            pass
+        else:
+            e.updateAverageWeight (edge,distance)
+    return analyzer
+
+
+
+def addRouteConnections(analyzer):
+    """
+    Por cada vertice (cada estacion) se recorre la lista
+    de rutas servidas en dicha estación y se crean
+    arcos entre ellas para representar el cambio de ruta
+    que se puede realizar en una estación.
+    """
+    lststops = m.keySet(analyzer['comunity_area'])
+    stopsiterator = it.newIterator(lststops)
+    while it.hasNext(stopsiterator):
+        key = it.next(stopsiterator)
+        lstroutes = m.get(analyzer['comunity_area'], key)['value']
+        prevrout = None
+        routeiterator = it.newIterator(lstroutes)
+        while it.hasNext(routeiterator):
+            route = key + '-' + it.next(routeiterator)
+            if prevrout is not None:
+                addConnection(analyzer, prevrout, route, 0)
+                addConnection(analyzer, route, prevrout, 0)
+            prevrout = route
+
+
+
+
+
