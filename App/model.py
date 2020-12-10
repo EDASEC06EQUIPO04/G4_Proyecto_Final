@@ -82,7 +82,7 @@ def compOrdTaxis (analyzer):
     # Funcion para recorrer las llaves del mapa analyzer["CompaniasConTaxis"]
     # usando una lista temporal, y realiazando un ordenamiento InsertionSort
     
-    ordenados = lt.newList('SINGLE_LINKD',compareIds)
+    ordenados = lt.newList('ARRAY_LIST',compareIds)
     recorrer = om.keySet(analyzer["CompaniasConTaxis"])
 
     for i in range(lt.size(recorrer)):
@@ -102,7 +102,7 @@ def compOrdTaxis (analyzer):
 def compOrdServicios (analyzer):
     # Funcion para recorrer las llaves del mapa analyzer["CompaniasConServicios"]
     # usando una lista temporal, y realiazando un ordenamiento InsertionSort
-    ordenados = lt.newList('SINGLE_LINKED',compareIds)
+    ordenados = lt.newList('ARRAY_LIST',compareIds)
     recorrer = om.keySet(analyzer["CompaniasConServicios"])
 
     for i in range(lt.size(recorrer)):
