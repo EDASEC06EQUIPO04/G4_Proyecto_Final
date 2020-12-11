@@ -141,19 +141,22 @@ def optionFour():
     
 
 def optionFive():
-    """
+
+    
     print(gr.vertices(graph["grafo"]))
     print(gr.numEdges(graph["grafo"]))
 
     arcos=gr.edges(graph["grafo"])
 
+    """
     i=0
     while i <= lt.size(arcos):
         print(lt.getElement(arcos,i))
         i+=1
     """
 
-    print(graph["grafo"])
+    #print(graph["grafo"])
+
 
 """
 Menu principal

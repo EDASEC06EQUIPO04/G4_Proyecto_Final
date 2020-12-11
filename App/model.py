@@ -376,7 +376,3 @@ def addRouteConnections(analyzer):
                 addConnection(analyzer, route, prevrout, 0)
             prevrout = route
 
-
-
-
-
