@@ -56,7 +56,6 @@ operación seleccionada.
 initialStation = None
 recursionLimit = 20000000000000000000000000000000000000000
 
-
 # ___________________________________________________
 #  Menu principal
 # ___________________________________________________
@@ -89,7 +88,7 @@ def optionTwo():
     else:
         servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
 
-    cont1=controller.loadServices(cont,servicefile,graph)
+    cont1=controller.loadServices(cont,servicefile)
     
     #servicio=lt.getElement(cont1['servicioIndex'],0)
     #print (servicio['taxi_id'])
@@ -142,21 +141,44 @@ def optionFour():
 
 def optionFive():
 
-    
+    inicio="7:30"                 #input("Digite la hora en la que quiere iniciar el viaje: ")
+    final="11:30"                  #input("Digite la hora en la que quiere termina el viaje: ")
+
+    x=inicio.split(":")
+    y=final.split(':')
+
+
+    print("\nCargando información ....")
+    tFile=input ("Digite S (Small), M (Medium) o L (Large), para cargar archivo [S, M o L]: " )
+    tFile=tFile.upper()
+    if (tFile=="S"): 
+        servicefile = 'taxi-trips-wrvz-psew-subset-small.csv'
+    elif (tFile=="M"):
+        servicefile = 'taxi-trips-wrvz-psew-subset-medium.csv'
+    else:
+        servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
+
+    controller.loadGraph(graph,servicefile, x, y)
+
+
+
+    """
     print(gr.vertices(graph["grafo"]))
     print(gr.numEdges(graph["grafo"]))
 
     arcos=gr.edges(graph["grafo"])
 
-    """
+    
+    
     i=0
     while i <= lt.size(arcos):
         print(lt.getElement(arcos,i))
         i+=1
-    """
+    
 
     #print(graph["grafo"])
-
+    
+    """
 
 """
 Menu principal
@@ -170,7 +192,6 @@ while True:
         # cont es el controlador que se usará de acá en adelante
         cont = controller.init()
         graph= controller.init_graph()
-        print (cont)
 
     elif int(inputs) == 2:
         executiontime = timeit.timeit(optionTwo, number=1)

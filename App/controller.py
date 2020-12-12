@@ -65,7 +65,7 @@ def init_graph():
 # ___________________________________________________
 
 
-def loadServices(analyzer,servicesfile, graph):
+def loadServices(analyzer,servicesfile):
     """
     Carga los datos de los archivos CSV en el modelo.
     Se crea un arco entre cada par de estaciones que
@@ -76,16 +76,27 @@ def loadServices(analyzer,servicesfile, graph):
     filename = cf.data_dir + servicesfile
     input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
     
-    
-    
     for service in input_file:
-        
-        #model.addService(analyzer, service) 
-        model.addTrip(graph,service) 
-        
-    
+        model.addService(analyzer, service) 
     return analyzer
 
+
+
+def loadGraph(graph,servicesfile, inicio, final):
+    """
+    Carga los datos de los archivos CSV en el modelo.
+    Se crea un arco entre cada par de estaciones que
+    pertenecen al mismo servicio y van en el mismo sentido.
+    addRouteConnection crea conexiones entre diferentes rutas
+    servidas en una misma estación.
+    """
+    filename = cf.data_dir + servicesfile
+    input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
+    
+    for service in input_file: 
+        model.addTrip(graph,service,inicio, final) 
+    
+    return graph
 
 
 # ___________________________________________________

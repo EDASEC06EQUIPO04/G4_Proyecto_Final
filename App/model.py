@@ -250,19 +250,19 @@ def newGraph():
                     'grafo': None,
                     }
 
-        graph['comunity_area'] = m.newMap(numelements=14000,
+        graph['comunity_area'] = m.newMap(numelements=1400,
                                      maptype='PROBING',
                                      comparefunction=compare_community_areas)
 
         graph['grafo'] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=True,
-                                              size=14000,
+                                              size=1200,
                                               comparefunction=compare_community_areas)
         return graph
    
 
 
-def addTrip(graph, service):
+def addTrip(graph, service, inicio, final):
 
     if service["pickup_community_area"] == '':
         service["pickup_community_area"] = "-1.0"
@@ -273,14 +273,34 @@ def addTrip(graph, service):
     if service["trip_seconds"] == '':
         service["trip_seconds"] = "-1.0"
 
+
+    if service["trip_start_timestamp"] == '':
+        service["trip_start_timestamp"] = "00:00:00.000"
+
+
+    if service["trip_end_timestamp"] == '':
+        service["trip_end_timestamp"] = "00:00:00.000"
+
+
     origin_community_area= float(service["pickup_community_area"])
     destination_community_area=float(service["dropoff_community_area"])
     duration=float(service["trip_seconds"])
 
+    start= service["trip_start_timestamp"]
+    end= service["trip_end_timestamp"]
 
-    add_community_area(graph,origin_community_area)
-    add_community_area(graph,destination_community_area)
-    addConnection(graph, origin_community_area, destination_community_area, duration)
+    start_time = start[11:]
+    end_time= end[11:]
+
+    z=start_time.split(":")
+    w=end_time.split(":")
+
+
+    if (int(inicio[0]) <= int(z[0]) <= int(final[0])) and (int(inicio[0]) <= int(w[0]) <= int(final[0])):
+
+        add_community_area(graph,origin_community_area)
+        add_community_area(graph,destination_community_area)
+        addConnection(graph, origin_community_area, destination_community_area, duration)
     
 
         
@@ -293,17 +313,20 @@ def add_community_area(graph, community_area):
     return graph
 
 
-def add_CA_Connection(graph, origin, destination, duration):
+def addConnection(analyzer, origin, destination, distance):
     """
     Adiciona un arco entre dos estaciones
     """
-    edge = gr.getEdge(graph['grafo'], origin, destination)
+    edge = gr.getEdge(analyzer['grafo'], origin, destination)
     if edge is None:
-        gr.addEdge(graph['grafo'], origin, destination, duration)
-    else:
-        prev_duration = float(e.weight(edge))
-        duration += prev_duration
-        e.updateAverageWeight(edge, duration)
+        gr.addEdge(analyzer['grafo'], origin, destination, distance)
+
+    else: 
+        if origin == destination:
+            pass
+        else:
+            e.updateAverageWeight (edge,distance)
+    return analyzer
 
 
 def compare_community_areas(stop, keyvaluestop):
@@ -338,41 +361,3 @@ def compare_community_areas(stop, keyvaluestop):
 # ==============================
 # Funciones Helper
 # ==============================
-
-def addConnection(analyzer, origin, destination, distance):
-    """
-    Adiciona un arco entre dos estaciones
-    """
-    edge = gr.getEdge(analyzer['grafo'], origin, destination)
-    if edge is None:
-        gr.addEdge(analyzer['grafo'], origin, destination, distance)
-    else: 
-        if origin == destination:
-            pass
-        else:
-            e.updateAverageWeight (edge,distance)
-    return analyzer
-
-
-
-def addRouteConnections(analyzer):
-    """
-    Por cada vertice (cada estacion) se recorre la lista
-    de rutas servidas en dicha estación y se crean
-    arcos entre ellas para representar el cambio de ruta
-    que se puede realizar en una estación.
-    """
-    lststops = m.keySet(analyzer['comunity_area'])
-    stopsiterator = it.newIterator(lststops)
-    while it.hasNext(stopsiterator):
-        key = it.next(stopsiterator)
-        lstroutes = m.get(analyzer['comunity_area'], key)['value']
-        prevrout = None
-        routeiterator = it.newIterator(lstroutes)
-        while it.hasNext(routeiterator):
-            route = key + '-' + it.next(routeiterator)
-            if prevrout is not None:
-                addConnection(analyzer, prevrout, route, 0)
-                addConnection(analyzer, route, prevrout, 0)
-            prevrout = route
-
