@@ -80,82 +80,34 @@ def printMenu():
 
 def optionTwo():
     print("\nCargando información ....")
-    #tFile=input ("Digite S (Small), M (Medium) o L (Large), para cargar archivo [S, M o L]: " )
-    #tFile=tFile.upper()
-    #if (tFile=="S"): 
     servicefile = 'taxi-trips-wrvz-psew-subset-small.csv'
     #elif (tFile=="M"):
     #    servicefile = 'taxi-trips-wrvz-psew-subset-medium.csv'
     #else:
     #    servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
+    #cont1=controller.loadServices(cont,servicefile,graph)
 
-    cont1=controller.loadServices(cont,servicefile,graph)
-    
-    #servicio=lt.getElement(cont1['servicioIndex'],0)
-    #print (servicio['taxi_id'])
+    controller.loadServices(cont, servicefile)
+    numedges = controller.totalConnections(cont)
+    numvertex = controller.totalStops(cont)
+    print (gr.vertices(cont['connections']))
+    print('Numero de vertices: ' + str(numvertex))
+    print('Numero de arcos: ' + str(numedges))
+    print('El limite de recursion actual: ' + str(sys.getrecursionlimit()))
+    sys.setrecursionlimit(recursionLimit)
+    print('El limite de recursion se ajusta a: ' + str(recursionLimit))
+
 
     
 def optionThree():
-    print (" ")
-    #mapaServicios=cont['servicioIndex']
-    
-    #print ("Cantidad de companias que prestan servicios: ", om.size(mapaServicios))
-    print ("Cantidad de servicios prestados: ", lt.size(cont['servicioIndex']))
-    print ("  ") 
-    print ("Cantidad de companias: ", om.size(cont['companias']))  
-    print ("  ")
-    print ("Cantidad de taxis: ", om.size(cont['taxiIndex'])) 
-    print ("")
-
-    numM = int(input ("Cuantas Companias a consultar con sus Taxis: " ))
-    ordenar=model.compOrdTaxis (cont)
-    print ("")
-    print ("*********************************************************")
-    print ("**    Companias con su respectiva cantidad de Taxis    **")
-    print ("*********************************************************")
-    for i in range(1,numM+1):
-        print(i, " : ", lt.getElement(ordenar,i)[1], ": [ ", lt.getElement(ordenar,i)[0], " ]")
-    print ("")
-    print ("*********************************************************")
-    print ("")
-    input("Clic para continuar.....")
-    print ("")
-
-    numN = int(input ("Cuantas Companias a consultar con sus Servicios: " ))
-    ordenarS=model.compOrdServicios (cont)
-    print ("")
-    print ("*********************************************************")
-    print ("**    Companias con su respectiva cantidad de Taxis    **")
-    print ("*********************************************************")
-    for i in range(1,numN+1):
-        print(i, ": ", lt.getElement(ordenarS,i)[1], ": [ ", lt.getElement(ordenarS,i)[0], " ]")
-    print ("")
-    print ("*********************************************************")
-    print ("")
-    input("Clic para continuar.....")
-    print ("")
-
+    #this thing should define origin
+    controller.minimumCostPaths(cont, initialStation)
 
 def optionFour():
     pass
 
 def optionFive():
-
-    
-    print(gr.vertices(graph["grafo"]))
-    print(gr.numEdges(graph["grafo"]))
-
-    arcos=gr.edges(graph["grafo"])
-
-
-    i=0
-    while i <= lt.size(arcos):
-        print(lt.getElement(arcos,i))
-        i+=1
-
-
-    #print(graph["grafo"])
-
+    pass
 
 """
 Menu principal
@@ -167,15 +119,20 @@ while True:
     if int(inputs) == 1:
         print("\nInicializando....")
         # cont es el controlador que se usará de acá en adelante
-        cont = controller.init()
-        graph= controller.init_graph()
-        print (cont)
+        #cont = controller.init()
+
+
+
+        cont= controller.init_graph()
+        #print (graph)
 
     elif int(inputs) == 2:
         executiontime = timeit.timeit(optionTwo, number=1)
         print("Tiempo de ejecución: ",  round (executiontime,2))
 
     elif int(inputs) == 3:
+        msg = "Punto de partida: (ej 8) "
+        initialStation = input(msg)
         executiontime = timeit.timeit(optionThree, number=1)
         print("Tiempo de ejecución: " + str(executiontime))
 
