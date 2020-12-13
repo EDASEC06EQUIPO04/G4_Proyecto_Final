@@ -248,6 +248,7 @@ def newGraph():
         graph = {
                     'comunity_area': None,
                     'grafo': None,
+                    'paths':None
                     }
 
         graph['comunity_area'] = m.newMap(numelements=1400,
@@ -297,7 +298,6 @@ def addTrip(graph, service, inicio, final):
 
 
     if (int(inicio[0]) <= int(z[0]) <= int(final[0])) and (int(inicio[0]) <= int(w[0]) <= int(final[0])):
-
         add_community_area(graph,origin_community_area)
         add_community_area(graph,destination_community_area)
         addConnection(graph, origin_community_area, destination_community_area, duration)
@@ -361,3 +361,29 @@ def compare_community_areas(stop, keyvaluestop):
 # ==============================
 # Funciones Helper
 # ==============================
+
+
+def minimumCostPaths(analyzer, initialStation):
+    """
+    Calcula los caminos de costo mínimo desde la estacion initialStation
+    a todos los demas vertices del grafo
+    """
+    analyzer['paths'] = djk.Dijkstra(analyzer['grafo'], initialStation)
+    return analyzer
+
+
+def minimumCostPath(analyzer, destStation):
+    """
+    Retorna el camino de costo minimo entre la estacion de inicio
+    y la estacion destino
+    Se debe ejecutar primero la funcion minimumCostPaths
+    """
+    path = djk.pathTo(analyzer['paths'], destStation)
+    return path
+
+def pathTo (analyzer, destination):
+
+    pila=djk.pathTo(analyzer["paths"], destination)
+
+    return pila
+

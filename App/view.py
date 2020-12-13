@@ -161,24 +161,32 @@ def optionFive():
     controller.loadGraph(graph,servicefile, x, y)
 
 
+    x=controller.minimumCostPaths(graph, 32.0)
+    y=controller.minimumCostPath(x, 42.0)
+    z=controller.pathto(x, 42.0)
+
+
+    print(y)
+    print('******************************')
+    print(z)
+    
+    #print(gr.vertices(graph["grafo"]))
+    #print(gr.numVertices(graph["grafo"]))
+    #print(gr.numEdges(graph["grafo"]))
+
+    
 
     """
-    print(gr.vertices(graph["grafo"]))
-    print(gr.numEdges(graph["grafo"]))
-
     arcos=gr.edges(graph["grafo"])
-
-    
-    
     i=0
     while i <= lt.size(arcos):
         print(lt.getElement(arcos,i))
         i+=1
-    
+    print(lt.size(arcos))
 
     #print(graph["grafo"])
-    
     """
+    
 
 """
 Menu principal

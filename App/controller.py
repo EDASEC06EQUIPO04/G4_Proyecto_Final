@@ -102,3 +102,28 @@ def loadGraph(graph,servicesfile, inicio, final):
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+
+def dijkstra(grafo, vertice_ini):
+    source=model.dijkstra(grafo,vertice_ini)
+    return source 
+
+
+
+def minimumCostPaths(analyzer, initialStation):
+    """
+    Calcula todos los caminos de costo minimo de initialStation a todas
+    las otras estaciones del sistema
+    """
+    return model.minimumCostPaths(analyzer, initialStation)
+
+
+def minimumCostPath(analyzer, destStation):
+    """
+    Retorna el camino de costo minimo desde initialStation a destStation
+    """
+    return model.minimumCostPath(analyzer, destStation)
+
+def pathto (analyzer, destination):
+    pila=model.pathTo(analyzer,destination)
+    return pila
