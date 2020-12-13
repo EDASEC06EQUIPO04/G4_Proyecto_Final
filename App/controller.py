@@ -56,8 +56,8 @@ def init_graph():
     Llama la funcion de inicializacion  del modelo.
     """
     # analyzer es utilizado para interactuar con el modelo
-    analyzer = model.newGraph()
-    return analyzer
+    graph = model.newGraph()
+    return graph
 
 # ___________________________________________________
 #  Funciones para la carga de datos y almacenamiento
@@ -73,24 +73,42 @@ def loadServices(analyzer,servicesfile):
     addRouteConnection crea conexiones entre diferentes rutas
     servidas en una misma estación.
     """
-    servicesfile = cf.data_dir + servicesfile
-    input_file = csv.DictReader(open(servicesfile, encoding="utf-8"),
-                                delimiter=",")
-    lastservice = None
+    filename = cf.data_dir + servicesfile
+    input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
+    
     for service in input_file:
-        if lastservice is not None:
-            #sameservice = lastservice['pickup_community_area'] == service['pickup_community_area']
-            model.addStopConnection(analyzer, lastservice, service)
-        lastservice = service
-    model.addRouteConnections(analyzer)
-    print(analyzer)
+        model.addService(analyzer, service) 
     return analyzer
 
+
+
+def loadGraph(graph,servicesfile, inicio, final):
+    """
+    Carga los datos de los archivos CSV en el modelo.
+    Se crea un arco entre cada par de estaciones que
+    pertenecen al mismo servicio y van en el mismo sentido.
+    addRouteConnection crea conexiones entre diferentes rutas
+    servidas en una misma estación.
+    """
+    filename = cf.data_dir + servicesfile
+    input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
+    
+    for service in input_file: 
+        model.addTrip(graph,service,inicio, final) 
+    
+    return graph
 
 
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+
+def dijkstra(grafo, vertice_ini):
+    source=model.dijkstra(grafo,vertice_ini)
+    return source 
+
+
 
 def minimumCostPaths(analyzer, initialStation):
     """
@@ -100,14 +118,15 @@ def minimumCostPaths(analyzer, initialStation):
     return model.minimumCostPaths(analyzer, initialStation)
 
 
-def totalConnections(analyzer):
+def minimumCostPath(analyzer, destStation):
     """
-    Total de enlaces entre las paradas
+    Retorna el camino de costo minimo desde initialStation a destStation
     """
-    return model.totalConnections(analyzer)
+    return model.minimumCostPath(analyzer, destStation)
 
-def totalStops(analyzer):
-    """
-    Total de paradas de autobus
-    """
-    return model.totalStops(analyzer)
+def pathto (analyzer, destination):
+    pila=model.pathTo(analyzer,destination)
+    return pila
+
+def disTo (search, vertex):
+    model.disTo(search, vertex)

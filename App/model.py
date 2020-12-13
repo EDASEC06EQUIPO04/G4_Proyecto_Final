@@ -50,6 +50,191 @@ de creacion y consulta sobre las estructuras de datos.
 # -----------------------------------------------------
 
 
+def newAnalyzer():
+
+    # creo la lista para almacenar todos los companias, esto es cada fila del excel con sus 23 campos
+    # crea un Cataolo de Analyzer, una lista para los Companias y una Mapa Ordenado los servicios y taxis
+    analyzer={  'servicioIndex':None, 
+                'companias':None,
+                'taxiIndex':None,
+                'CompaniasConServicios':None,
+                'CompaniasConTaxis':None
+            }
+    analyzer['servicioIndex']=lt.newList('SINGLE_LINKED',compareIds)
+
+    analyzer['companias']=om.newMap(omaptype='RBT',comparefunction=compareServicio)
+    analyzer['taxiIndex']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)
+    analyzer['CompaniasConTaxis']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)
+    analyzer['CompaniasConServicios']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)     
+
+    return analyzer
+
+
+# ---------------------------------------------------------------
+#                       Requerimiento Uno (1)
+# ---------------------------------------------------------------
+
+# ---------------------------------------------------------------
+#                Requerimiento Uno (1) Funciones de Consulta
+# ---------------------------------------------------------------
+
+def compOrdTaxis (analyzer):
+    # Funcion para recorrer las llaves del mapa analyzer["CompaniasConTaxis"]
+    # usando una lista temporal, y realiazando un ordenamiento InsertionSort
+    
+    ordenados = lt.newList('SINGLE_LINKD',compareIds)
+    recorrer = om.keySet(analyzer["CompaniasConTaxis"])
+
+    for i in range(lt.size(recorrer)):
+        lt.addLast(ordenados,(om.size(om.get(analyzer["CompaniasConTaxis"],lt.getElement(recorrer,i))['value']),lt.getElement(recorrer,i)))
+    #ordenados=qs.quickSort(ordenados,lessfunction) 
+    size = lt.size(ordenados)
+    pos1 = 1
+    while pos1 <= size:
+        pos2 = pos1
+        while (pos2 > 1) and (lt.getElement(ordenados, pos2)[0]> lt.getElement(ordenados, pos2-1)[0]):
+            lt.exchange(ordenados, pos2, pos2-1)
+            pos2 -= 1
+        pos1 += 1
+    
+    return ordenados
+
+def compOrdServicios (analyzer):
+    # Funcion para recorrer las llaves del mapa analyzer["CompaniasConServicios"]
+    # usando una lista temporal, y realiazando un ordenamiento InsertionSort
+    ordenados = lt.newList('SINGLE_LINKED',compareIds)
+    recorrer = om.keySet(analyzer["CompaniasConServicios"])
+
+    for i in range(lt.size(recorrer)):
+        lt.addLast(ordenados,(om.size(om.get(analyzer["CompaniasConServicios"],lt.getElement(recorrer,i))['value']),lt.getElement(recorrer,i)))
+    #ordenados=qs.quickSort(ordenados,lessfunction)
+       
+    size = lt.size(ordenados)
+    pos1 = 1
+    while pos1 <= size:
+        pos2 = pos1
+        while (pos2 > 1) and (lt.getElement(ordenados, pos2)[0]> lt.getElement(ordenados, pos2-1)[0]):
+            lt.exchange(ordenados, pos2, pos2-1)
+            pos2 -= 1
+        pos1 += 1
+    
+    return ordenados
+
+
+def lessfunction (elemento1, elemento2):
+    if elemento1<elemento2:
+      return True
+    return False
+
+# ---------------------------------------------------------------
+#   Requerimiento Uno (1) Funciones de Carga de Listas y Maps
+# ---------------------------------------------------------------
+
+def addService(analyzer, service): 
+    addCompaniaTaxi(analyzer,service['company'],service['taxi_id'])
+    addCompaniaServicio(analyzer,service['company'], service['trip_id'])
+    lt.addLast(analyzer['servicioIndex'],service)
+    addServiceCompany(analyzer, service)
+    om.put(analyzer['taxiIndex'],service['taxi_id'],0)
+
+    return analyzer
+
+def addCompaniaTaxi(analyzer, compania, idTaxi):
+    """
+    Esta funcion carga la companias y mapa con los IdTaxis, permite contabilizar los  taxis 
+    que estan inscritos en una Compania X de taxis.
+    """
+    if om.contains(analyzer['CompaniasConTaxis'],compania):
+        temp = om.get(analyzer['CompaniasConTaxis'],compania)['value']
+        om.put(temp,idTaxi,0)
+    else:
+        temp = om.newMap(omaptype='RBT',comparefunction=compareTaxi)
+        om.put(temp,idTaxi,0)
+        om.put(analyzer['CompaniasConTaxis'],compania,temp)
+    return analyzer
+
+
+def addCompaniaServicio(analyzer, compania, trip_id):
+    """
+    Esta funcion carga la companias y mapa con los IdTRip, permite contabilizar los servicios 
+    prestados por una Compania X.
+    """
+    if om.contains(analyzer['CompaniasConServicios'],compania):
+        temp = om.get(analyzer['CompaniasConServicios'],compania)['value']
+        om.put(temp,trip_id,0)
+    else:
+        temp = om.newMap(omaptype='RBT',comparefunction=compareTaxi)
+        om.put(temp,trip_id,0)
+        om.put(analyzer['CompaniasConServicios'],compania,temp)
+
+    return analyzer
+
+
+def addServiceCompany(analyzer,service):
+    if(om.contains(analyzer["companias"],service['company'])):
+        lt.addLast(om.get(analyzer['companias'],service['company'])['value'],service)
+    else:
+        add = lt.newList('SINGLE_LINKED')
+        lt.addLast(add,service)
+        om.put(analyzer["companias"],service["company"],add)
+
+
+
+def compareprodComs(keyname, company):
+    """
+    Compara dos nombres de autor. El primero es una cadena
+    y el segundo un entry de un map
+    """
+    authentry = me.getKey(company)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
+        return 1
+    else:
+        return -1
+
+
+# ---------------------------------------------------------------
+#   Requerimiento Uno (1) Funciones de Comparacion
+# ---------------------------------------------------------------
+
+def compareServicio (servicioID1,servicioID2):
+    
+    # compara los crimenes
+    if (servicioID1==servicioID2):
+        return 0
+    elif (servicioID1>servicioID2):
+        return 1
+    else:
+        return -1
+
+def compareTaxi (taxiID1,taxiID2):
+    
+    # compara los crimenes
+    if (taxiID1==taxiID2):
+        return 0
+    elif (taxiID1>taxiID2):
+        return 1
+    else:
+        return -1
+
+def compareIds (id1,id2):
+    
+    # compara los crimenes
+    if (id1==id2):
+        return 0
+    elif (id1>id2):
+        return 1
+    else:
+        return -1
+
+def compareCustom(val1,val2):
+    if(val1[0] > val2[0]):
+        return -1
+    elif(val1[0] < val2[0]):
+        return 0
+    return compareIds(val1[1],val2[1])
+
 # ---------------------------------------------------------------
 #                       Requerimiento dos (2)
 # ---------------------------------------------------------------
@@ -61,137 +246,62 @@ de creacion y consulta sobre las estructuras de datos.
 
 def newGraph():
         graph = {
-                    'area': None,
-                    'connections': None,
-                    'components': None,
-                    'paths': None
+                    'comunity_area': None,
+                    'grafo': None,
+                    'paths':None
                     }
 
-        graph['area'] = m.newMap(numelements=14000,
+        graph['comunity_area'] = m.newMap(numelements=1400,
                                      maptype='PROBING',
-                                     comparefunction=compareStopIds)
+                                     comparefunction=compare_community_areas)
 
-        graph['connections'] = gr.newGraph(datastructure='ADJ_LIST',
+        graph['grafo'] = gr.newGraph(datastructure='ADJ_LIST',
                                               directed=True,
-                                              size=14000,
-                                              comparefunction=compareStopIds)
-
+                                              size=1200,
+                                              comparefunction=compare_community_areas)
         return graph
    
 
 
+def addTrip(graph, service, inicio, final):
 
-def addStopConnection(analyzer, lastservice, service):
+    if service["pickup_community_area"] == '':
+        service["pickup_community_area"] = "-1.0"
 
-    try:
-        origin = formatVertex(lastservice)
-        destination = formatVertex(service)
-        cleanServiceDistance(lastservice, service)
-        distance = float(service['trip_miles']) - float(lastservice['trip_miles'])
-        addStop(analyzer, origin)
-        addStop(analyzer, destination)
-        addConnection(analyzer, origin, destination, distance)
-        return analyzer
-    except Exception as exp:
-        error.reraise(exp, 'model:addStopConnection')
+    if service["dropoff_community_area"] == '':
+        service["dropoff_community_area"] = "-1.0"
 
-def formatVertex(service):
-
-    name = service['pickup_community_area']
-    return name
-
-def cleanServiceDistance(lastservice, service):
-
-    if service['trip_miles'] == '':
-        service['trip_miles'] = 0
-    if lastservice['trip_miles'] == '':
-        lastservice['trip_miles'] = 0
-
-def addStop(analyzer, stopid):
-    try:
-        if not gr.containsVertex(analyzer['connections'], stopid):
-            gr.insertVertex(analyzer['connections'], stopid)
-        return analyzer
-    except Exception as exp:
-        error.reraise(exp, 'model:addstop')
+    if service["trip_seconds"] == '':
+        service["trip_seconds"] = "-1.0"
 
 
-def addConnection(analyzer, origin, destination, distance):
-    """
-    Adiciona un arco entre dos estaciones
-    """
-    edge = gr.getEdge(analyzer['connections'], origin, destination)
-    if edge is None:
-        gr.addEdge(analyzer['connections'], origin, destination, distance)
-    else: 
-        if origin == destination:
-            pass
-        else:
-            e.updateAverageWeight (edge,distance)
-    return analyzer
-
-def addRouteStop(analyzer, service):
-
-    entry = m.get(analyzer['area'], service['pickup_community_area'])
-    if entry is None:
-        lstroutes = lt.newList(cmpfunction=compareroutes)
-        m.put(analyzer['area'], service['pickup_community_area'], lstroutes)
-    else:
-        lstroutes = entry['value']
-        info = service['ServiceNo']
-        if not lt.isPresent(lstroutes, info):
-            lt.addLast(lstroutes, info)
-    return analyzer
+    if service["trip_start_timestamp"] == '':
+        service["trip_start_timestamp"] = "00:00:00.000"
 
 
+    if service["trip_end_timestamp"] == '':
+        service["trip_end_timestamp"] = "00:00:00.000"
 
 
+    origin_community_area= float(service["pickup_community_area"])
+    destination_community_area=float(service["dropoff_community_area"])
+    duration=float(service["trip_seconds"])
+
+    start= service["trip_start_timestamp"]
+    end= service["trip_end_timestamp"]
+
+    start_time = start[11:]
+    end_time= end[11:]
+
+    z=start_time.split(":")
+    w=end_time.split(":")
 
 
-
-
-
-def compareStopIds(stop, keyvaluestop):
-    """
-    Compara dos estaciones
-    """
-    stopcode = keyvaluestop['key']
-    if (stop == stopcode):
-        return 0
-    elif (stop > stopcode):
-        return 1
-    else:
-        return -1
-
-
-def compareroutes(route1, route2):
-    """
-    Compara dos rutas
-    """
-    if (route1 == route2):
-        return 0
-    elif (route1 > route2):
-        return 1
-    else:
-        return -1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    if (int(inicio[0]) <= int(z[0]) <= int(final[0])) and (int(inicio[0]) <= int(w[0]) <= int(final[0])):
+        add_community_area(graph,origin_community_area)
+        add_community_area(graph,destination_community_area)
+        addConnection(graph, origin_community_area, destination_community_area, duration)
+    
 
         
 def add_community_area(graph, community_area):
@@ -203,17 +313,20 @@ def add_community_area(graph, community_area):
     return graph
 
 
-def add_CA_Connection(graph, origin, destination, duration):
+def addConnection(analyzer, origin, destination, distance):
     """
     Adiciona un arco entre dos estaciones
     """
-    edge = gr.getEdge(graph['grafo'], origin, destination)
+    edge = gr.getEdge(analyzer['grafo'], origin, destination)
     if edge is None:
-        gr.addEdge(graph['grafo'], origin, destination, duration)
-    else:
-        prev_duration = float(e.weight(edge))
-        duration += prev_duration
-        e.updateAverageWeight(edge, duration)
+        gr.addEdge(analyzer['grafo'], origin, destination, distance)
+
+    else: 
+        if origin == destination:
+            pass
+        else:
+            e.updateAverageWeight (edge,distance)
+    return analyzer
 
 
 def compare_community_areas(stop, keyvaluestop):
@@ -225,6 +338,10 @@ def compare_community_areas(stop, keyvaluestop):
     else:
         return -1
 
+
+def disTo (search, vertex):
+    answer = djk.distTo(search, vertex)
+    print(answer)
 
 
 
@@ -244,57 +361,32 @@ def compare_community_areas(stop, keyvaluestop):
 # ==============================
 
     
-def minimumCostPaths(analyzer, initialStation):
-    """
-    Calcula los caminos de costo mínimo desde la estacion initialStation
-    a todos los demas vertices del grafo
-    """
-    analyzer['paths'] = djk.Dijkstra(analyzer['connections'], initialStation)
-    return analyzer
-
-
-
 
 # ==============================
 # Funciones Helper
 # ==============================
 
 
-
-
-def addRouteConnections(analyzer):
+def minimumCostPaths(analyzer, initialStation):
     """
-    Por cada vertice (cada estacion) se recorre la lista
-    de rutas servidas en dicha estación y se crean
-    arcos entre ellas para representar el cambio de ruta
-    que se puede realizar en una estación.
+    Calcula los caminos de costo mínimo desde la estacion initialStation
+    a todos los demas vertices del grafo
     """
-    lststops = m.keySet(analyzer['area'])
-    stopsiterator = it.newIterator(lststops)
-    while it.hasNext(stopsiterator):
-        key = it.next(stopsiterator)
-        lstroutes = m.get(analyzer['area'], key)['value']
-        prevrout = None
-        routeiterator = it.newIterator(lstroutes)
-        while it.hasNext(routeiterator):
-            route = key + '-' + it.next(routeiterator)
-            if prevrout is not None:
-                addConnection(analyzer, prevrout, route, 0)
-                addConnection(analyzer, route, prevrout, 0)
-            prevrout = route
+    analyzer['paths'] = djk.Dijkstra(analyzer['grafo'], initialStation)
+    return analyzer
 
 
-
-def totalConnections(analyzer):
+def minimumCostPath(analyzer, destStation):
     """
-    Retorna el total arcos del grafo
+    Retorna el camino de costo minimo entre la estacion de inicio
+    y la estacion destino
+    Se debe ejecutar primero la funcion minimumCostPaths
     """
-    return gr.numEdges(analyzer['connections'])
+    path = djk.pathTo(analyzer['paths'], destStation)
+    return path
 
+def pathTo (analyzer, destination):
 
-def totalStops(analyzer):
-    """
-    Retorna el total de estaciones (vertices) del grafo
-    """
-    return gr.numVertices(analyzer['connections'])
+    pila=djk.pathTo(analyzer["paths"], destination)
 
+    return pila
