@@ -68,7 +68,7 @@ def newAnalyzer():
     analyzer['CompaniasConServicios']=om.newMap(omaptype='RBT',comparefunction=compareTaxi)     
 
     return analyzer
-
+ 
 
 # ---------------------------------------------------------------
 #                       Requerimiento Uno (1)
@@ -82,7 +82,7 @@ def compOrdTaxis (analyzer):
     # Funcion para recorrer las llaves del mapa analyzer["CompaniasConTaxis"]
     # usando una lista temporal, y realiazando un ordenamiento InsertionSort
     
-    ordenados = lt.newList('SINGLE_LINKD',compareIds)
+    ordenados = lt.newList('ARRAY_LIST',compareIds)
     recorrer = om.keySet(analyzer["CompaniasConTaxis"])
 
     for i in range(lt.size(recorrer)):
@@ -102,7 +102,7 @@ def compOrdTaxis (analyzer):
 def compOrdServicios (analyzer):
     # Funcion para recorrer las llaves del mapa analyzer["CompaniasConServicios"]
     # usando una lista temporal, y realiazando un ordenamiento InsertionSort
-    ordenados = lt.newList('SINGLE_LINKED',compareIds)
+    ordenados = lt.newList('ARRAY_LIST',compareIds)
     recorrer = om.keySet(analyzer["CompaniasConServicios"])
 
     for i in range(lt.size(recorrer)):
@@ -339,28 +339,9 @@ def compare_community_areas(stop, keyvaluestop):
         return -1
 
 
-
-
-        
-# ==============================
-# Funciones de adicion
-# ==============================
-
-
-# ==============================
-# Funciones de Comparacion
-# ==============================
-
-
-# ==============================
-# Funciones de consulta
-# ==============================
-
-    
-
-# ==============================
-# Funciones Helper
-# ==============================
+def disTo (search, vertex):
+    answer = djk.distTo(search, vertex)
+    print(answer)
 
 
 def minimumCostPaths(analyzer, initialStation):
@@ -386,4 +367,3 @@ def pathTo (analyzer, destination):
     pila=djk.pathTo(analyzer["paths"], destination)
 
     return pila
-

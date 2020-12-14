@@ -40,6 +40,8 @@ from DISClib.ADT import map as m
 from DISClib.Algorithms.Graphs import dfs
 from DISClib.DataStructures import edge as e
 from DISClib.ADT import orderedmap as om
+from datetime import datetime, timedelta
+import datetime
 
 """
 La vista se encarga de la interacción con el usuario.
@@ -54,7 +56,8 @@ operación seleccionada.
 
 
 initialStation = None
-recursionLimit = 20000000000000000000000000000000000000000
+recursionLimit = 20000000000000000000000000000000000000000000000
+
 
 # ___________________________________________________
 #  Menu principal
@@ -87,7 +90,6 @@ def optionTwo():
         servicefile = 'taxi-trips-wrvz-psew-subset-medium.csv'
     else:
         servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
-
     cont1=controller.loadServices(cont,servicefile)
     
     #servicio=lt.getElement(cont1['servicioIndex'],0)
@@ -99,19 +101,27 @@ def optionThree():
     #mapaServicios=cont['servicioIndex']
     
     #print ("Cantidad de companias que prestan servicios: ", om.size(mapaServicios))
+    print ("")
+    print ("*********************************************************")
+    print ("** Datos generales  de Servicios, Companias y Taxis    **")
+    print ("*********************************************************")
+    print ("")
     print ("Cantidad de servicios prestados: ", lt.size(cont['servicioIndex']))
     print ("  ") 
     print ("Cantidad de companias: ", om.size(cont['companias']))  
     print ("  ")
     print ("Cantidad de taxis: ", om.size(cont['taxiIndex'])) 
     print ("")
-
-    numM = int(input ("Cuantas Companias a consultar con sus Taxis: " ))
+    print ("")
+    print ("*********************************************************")
+    print ("")
+    numM = int(input ("Cuantas Companias a consultar con sus Taxis ? : " ))
     ordenar=model.compOrdTaxis (cont)
     print ("")
     print ("*********************************************************")
     print ("**    Companias con su respectiva cantidad de Taxis    **")
     print ("*********************************************************")
+    print ("")
     for i in range(1,numM+1):
         print(i, " : ", lt.getElement(ordenar,i)[1], ": [ ", lt.getElement(ordenar,i)[0], " ]")
     print ("")
@@ -120,11 +130,11 @@ def optionThree():
     input("Clic para continuar.....")
     print ("")
 
-    numN = int(input ("Cuantas Companias a consultar con sus Servicios: " ))
+    numN = int(input ("Cuantas Companias a consultar con sus Servicios ? : " ))
     ordenarS=model.compOrdServicios (cont)
     print ("")
     print ("*********************************************************")
-    print ("**    Companias con su respectiva cantidad de Taxis    **")
+    print ("**    Companias con su respectiva Cantidad de Servicios    **")
     print ("*********************************************************")
     for i in range(1,numN+1):
         print(i, ": ", lt.getElement(ordenarS,i)[1], ": [ ", lt.getElement(ordenarS,i)[0], " ]")
@@ -134,23 +144,43 @@ def optionThree():
     input("Clic para continuar.....")
     print ("")
 
-
 def optionFour():
-     pass
+     
+
+     print('*********************************************************************')
+     print("NO SE REALIZÓ")
+     print('*********************************************************************')
     
 
+
+
+def divideInterval(t1, t2):
+    process=[]
+    timetemp= t1
+    timefinal=t2
+    process.append(t1)
+    
+    timetempformated= datetime.datetime.strptime(timetemp, '%H:%M')
+    timefinalformated= datetime.datetime.strptime(timefinal, '%H:%M')
+
+    while timetempformated< timefinalformated:
+        timeplus15 = timetempformated + datetime.timedelta(minutes=15)
+        nextTimestr= timeplus15.strftime("%H:%M")
+        process.append(nextTimestr)
+        timetempformated= timeplus15
+    print('************************************************************')
+    print("El rago de horas considerado es: ")
+    print(process)
+    print('************************************************************')
+    return process
+
+
 def optionFive():
-
-    inicio="7:30"                 #input("Digite la hora en la que quiere iniciar el viaje: ")
-    final="11:30"                  #input("Digite la hora en la que quiere termina el viaje: ")
-
-    x=inicio.split(":")
-    y=final.split(':')
-
 
     print("\nCargando información ....")
     tFile=input ("Digite S (Small), M (Medium) o L (Large), para cargar archivo [S, M o L]: " )
     tFile=tFile.upper()
+
     if (tFile=="S"): 
         servicefile = 'taxi-trips-wrvz-psew-subset-small.csv'
     elif (tFile=="M"):
@@ -158,46 +188,65 @@ def optionFive():
     else:
         servicefile = 'taxi-trips-wrvz-psew-subset-large.csv'
 
-    controller.loadGraph(graph,servicefile, x, y)
 
 
-    x=controller.minimumCostPaths(graph, 32.0)
-    y=controller.minimumCostPath(x, 42.0)
-    z=controller.pathto(x, 42.0)
+    areainicio= float(input ("ingrese Area inicio:  (ej.32.0)  "))
+    areafinal= float(input ("ingrese Area final  (ej.42.0)  "))
 
-
-    print(y)
-    print('******************************')
-    print(z)
+    hinicial= input("ingrese hora de incio del rango (HH:MM)(Hora mínima = 00:00):  ")
+    hfinal= input("ingrese hora final del rango (HH:MM)(hora máxima = 23:45):  ")
     
-    #print(gr.vertices(graph["grafo"]))
-    #print(gr.numVertices(graph["grafo"]))
-    #print(gr.numEdges(graph["grafo"]))
+    arraytiempos =divideInterval (hinicial, hfinal)
 
-    
+    controlvar= len(arraytiempos)-1
 
-    """
-    arcos=gr.edges(graph["grafo"])
     i=0
-    while i <= lt.size(arcos):
-        print(lt.getElement(arcos,i))
-        i+=1
-    print(lt.size(arcos))
+    respuesta=10000000000000000000
+    hora_inicio=None
+    w=None
 
-    #print(graph["grafo"])
-    """
+    print("cargando.....")
+
+    while i< controlvar:
+        inicio= arraytiempos[i]
+        final = arraytiempos[i+1]
+        ini=inicio.split(":")
+        fin=final.split(':')
+        i +=1
+
+
     
+        controller.loadGraph(graph,servicefile, ini, fin)
 
+        x=controller.minimumCostPaths(graph, areainicio)
+        y=controller.minimumCostPath(x, areafinal)
+    
+        if not (y["first"]["info"]["vertexB"] == -1.0):
+
+            if y["first"]["info"]["weight"]<respuesta:
+
+                respuesta=y["first"]["info"]["weight"]
+                hora_inicio=ini
+                w=y
+
+    
+    print('************************************************************')
+    print("El mejor horario para iniciar el viaje es: ", hora_inicio)
+    print("Tiempo estimado de viaje: ", respuesta/60)
+    print("El trayecto que debe seguir es: ", w)
+    print('************************************************************')
+
+    
 """
 Menu principal
 """
+
 while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar> ')
 
     if int(inputs) == 1:
         print("\nInicializando....")
-        # cont es el controlador que se usará de acá en adelante
         cont = controller.init()
         graph= controller.init_graph()
 

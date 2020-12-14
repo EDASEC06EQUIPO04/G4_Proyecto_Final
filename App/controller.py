@@ -81,7 +81,6 @@ def loadServices(analyzer,servicesfile):
     return analyzer
 
 
-
 def loadGraph(graph,servicesfile, inicio, final):
     """
     Carga los datos de los archivos CSV en el modelo.
@@ -103,13 +102,6 @@ def loadGraph(graph,servicesfile, inicio, final):
 #  Funciones para consultas
 # ___________________________________________________
 
-
-def dijkstra(grafo, vertice_ini):
-    source=model.dijkstra(grafo,vertice_ini)
-    return source 
-
-
-
 def minimumCostPaths(analyzer, initialStation):
     """
     Calcula todos los caminos de costo minimo de initialStation a todas
@@ -127,3 +119,6 @@ def minimumCostPath(analyzer, destStation):
 def pathto (analyzer, destination):
     pila=model.pathTo(analyzer,destination)
     return pila
+
+def disTo (search, vertex):
+    model.disTo(search, vertex)
