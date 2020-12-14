@@ -23,10 +23,12 @@
  * Dario Correal
  *
  """
-
+ 
 import config as cf
 from App import model
 import csv
+import os
+from DISClib.Algorithms.Graphs import scc
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -41,11 +43,82 @@ recae sobre el controlador.
 # ___________________________________________________
 
 
+def init():
+    """
+    Llama la funcion de inicializacion  del modelo.
+    """
+    # analyzer es utilizado para interactuar con el modelo
+    analyzer = model.newAnalyzer()
+    return analyzer
+
+def init_graph():
+    """
+    Llama la funcion de inicializacion  del modelo.
+    """
+    # analyzer es utilizado para interactuar con el modelo
+    graph = model.newGraph()
+    return graph
+
 # ___________________________________________________
 #  Funciones para la carga de datos y almacenamiento
 #  de datos en los modelos
 # ___________________________________________________
 
+
+def loadServices(analyzer,servicesfile):
+    """
+    Carga los datos de los archivos CSV en el modelo.
+    Se crea un arco entre cada par de estaciones que
+    pertenecen al mismo servicio y van en el mismo sentido.
+    addRouteConnection crea conexiones entre diferentes rutas
+    servidas en una misma estación.
+    """
+    filename = cf.data_dir + servicesfile
+    input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
+    
+    for service in input_file:
+        model.addService(analyzer, service) 
+    return analyzer
+
+
+def loadGraph(graph,servicesfile, inicio, final):
+    """
+    Carga los datos de los archivos CSV en el modelo.
+    Se crea un arco entre cada par de estaciones que
+    pertenecen al mismo servicio y van en el mismo sentido.
+    addRouteConnection crea conexiones entre diferentes rutas
+    servidas en una misma estación.
+    """
+    filename = cf.data_dir + servicesfile
+    input_file = csv.DictReader(open(filename, encoding="utf-8"), delimiter=",")
+    
+    for service in input_file: 
+        model.addTrip(graph,service,inicio, final) 
+    
+    return graph
+
+
 # ___________________________________________________
 #  Funciones para consultas
 # ___________________________________________________
+
+def minimumCostPaths(analyzer, initialStation):
+    """
+    Calcula todos los caminos de costo minimo de initialStation a todas
+    las otras estaciones del sistema
+    """
+    return model.minimumCostPaths(analyzer, initialStation)
+
+
+def minimumCostPath(analyzer, destStation):
+    """
+    Retorna el camino de costo minimo desde initialStation a destStation
+    """
+    return model.minimumCostPath(analyzer, destStation)
+
+def pathto (analyzer, destination):
+    pila=model.pathTo(analyzer,destination)
+    return pila
+
+def disTo (search, vertex):
+    model.disTo(search, vertex)
